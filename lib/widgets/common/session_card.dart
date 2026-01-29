@@ -65,7 +65,7 @@ class SessionCard extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     CachedNetworkImage(
-                      imageUrl: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', // fallback
+                      imageUrl: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
                       width: 160,
                       height: 90,
                       fit: BoxFit.cover,
@@ -137,7 +137,7 @@ class SessionCard extends StatelessWidget {
                           child: Text(
                             statusText,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -168,7 +168,7 @@ class SessionCard extends StatelessWidget {
                           child: Text(
                             '$progress%',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               //color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -176,7 +176,7 @@ class SessionCard extends StatelessWidget {
                           ),
                         ),
                         // Buttons
-                        Row(
+                        Column(
                           children: [
                             OutlinedButton(
                               onPressed: onTap ?? () =>Get.toNamed(AppRoutes.SESSION_DETAIL, parameters: {'id': id.toString()}),
@@ -185,7 +185,7 @@ class SessionCard extends StatelessWidget {
                                 minimumSize: const Size(0, 0),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text('Open', style: TextStyle(fontSize: 13,color: Colors.white)),
+                              child: const Text('Open', style: TextStyle(fontSize: 13,color: Colors.black,fontWeight: FontWeight.bold)),
                             ),
                             const SizedBox(width: 8),
                             ElevatedButton(
@@ -195,7 +195,7 @@ class SessionCard extends StatelessWidget {
                                 minimumSize: const Size(0, 0),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text('Play', style: TextStyle(fontSize: 13,color: Colors.white),selectionColor: Colors.white,),
+                              child: const Text('Play', style: TextStyle(fontSize: 13,color: Colors.black),selectionColor: Colors.white,),
                             ),
                           ],
                         ),

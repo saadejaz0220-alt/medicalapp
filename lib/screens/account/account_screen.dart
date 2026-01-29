@@ -110,6 +110,7 @@ class AccountScreen extends GetView<AccountController> {
                         Text(
                           'Theme',
                           style: Theme.of(context).textTheme.titleMedium,
+
                         ),
                         const ThemeSwitch(),
                       ],
@@ -120,6 +121,7 @@ class AccountScreen extends GetView<AccountController> {
                     Text(
                       'Daily Reminder',
                       style: Theme.of(context).textTheme.titleMedium,
+
                     ),
                     const SizedBox(height: 12),
                     Obx(
@@ -181,7 +183,7 @@ class AccountScreen extends GetView<AccountController> {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('Back',style: TextStyle(color: Colors.white),)
+                    child: const Text('Back')
                     ,
                   ),
                 ),
@@ -191,7 +193,7 @@ class AccountScreen extends GetView<AccountController> {
                     onPressed: controller.savePreferences,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Colors.black/*Theme.of(context).colorScheme.primary*/,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text('Save', style: TextStyle(color: Colors.white)),

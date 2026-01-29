@@ -25,6 +25,8 @@ class InitialBinding extends Bindings {
     Get.put(CalendarController());
     Get.put(EditProfileController());
 
+
+
     // ... other permanent controllers
   }
 }

@@ -88,11 +88,12 @@ class ContactScreen extends StatelessWidget {
               context: context,
               icon: Icons.email_rounded,
               label: 'Email: hello@infinitywellnessmd.com',
-              color: Colors.transparent,
+              color: Colors.black,
               borderColor: Colors.white,
               //borderColor: Theme.of(context).colorScheme.primary,
              // textColor: Theme.of(context).colorScheme.primary,
               textColor: Colors.white,
+
               onPressed: controller.launchEmail,
             ),
             const SizedBox(height: 48),

@@ -60,6 +60,97 @@ class _NavItem extends StatelessWidget {
 
   IconData _getIcon() {
     switch (index) {
+      case 0: return Icons.home_rounded;
+      case 1: return Icons.calendar_today_rounded;
+      case 2: return Icons.library_music_rounded;
+      case 3: return Icons.support_agent_rounded;
+      case 4: return Icons.person_rounded;
+      default: return Icons.circle;
+    }
+  }
+
+  String _getLabel() {
+    switch (index) {
+      case 0: return 'Home';
+      case 1: return 'Calendar';
+      case 2: return 'Media';
+      case 3: return 'Contact';
+      case 4: return 'Account';
+      default: return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    // Better color choices that work in both modes
+    final iconColor = isActive
+        ? colors.primary               // your accent blue in light & dark
+        : colors.onSurface.withOpacity(0.65);   // softer gray/black or light gray
+
+    final labelColor = isActive
+        ? colors.primary
+        : colors.onSurface.withOpacity(0.80);
+
+    final backgroundColor = isActive
+        ? colors.primary.withOpacity(0.12)
+        : Colors.transparent;
+
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _getIcon(),
+                size: 26,
+                color: iconColor,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _getLabel(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: labelColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+/*
+
+class _NavItem extends StatelessWidget {
+  final int index;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.index,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  IconData _getIcon() {
+    switch (index) {
       case 0:
         return Icons.home_rounded;
       case 1:
@@ -119,7 +210,7 @@ class _NavItem extends StatelessWidget {
               Icon(
                 _getIcon(),
                 size: 26,
-               color: Colors.white,
+               color: isActive ? Colors.black : Colors.white,
                // color: isActive ? primary : Colors.white,
               ),
               const SizedBox(height: 4),
@@ -128,7 +219,7 @@ class _NavItem extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: Colors.white,//grey.shade600
+                  color: isActive ? Colors.black : Colors.white,
                 ),
               ),
             ],
@@ -137,4 +228,4 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
-}
+}*/

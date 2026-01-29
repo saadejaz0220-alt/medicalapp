@@ -18,7 +18,7 @@ class SessionDetailScreen extends GetView<SessionDetailController> {
           onPressed: () => {Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (context) => const HomeScreen(),
+              builder: (context) => HomeScreen(),
             ),
            ),}
 

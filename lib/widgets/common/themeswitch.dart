@@ -28,15 +28,15 @@ class ThemeSwitch extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                isLight ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                isLight ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
                 color: isLight
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.amber,
+                    : Colors.lime,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                isLight ? 'Light' : 'Dark',
+                isLight ? 'Dark' : 'Light',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: isLight

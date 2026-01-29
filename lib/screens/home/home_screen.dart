@@ -2,16 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
-
 import '../../app/routes/app_routes.dart';
 import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
+import '../../widgets/common/image_gallary_grid.dart';
+import '../../widgets/common/journey_progress_card.dart';
+import '../../widgets/common/motivational_quote_card.dart';
+import '../../widgets/common/progress_card.dart';
 import '../../widgets/common/session_card.dart';
 import 'home_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +54,8 @@ class HomeScreen extends GetView<HomeController> {
                     "${controller.streak.value}",
                     style: TextStyle(
                       fontSize: 22,
-                     // color: Get.theme.colorScheme.primary,
-                      color: Colors.white,
+                      color: Get.theme.colorScheme.primary,
+                     // color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -61,7 +65,13 @@ class HomeScreen extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
+          const SimpleProgressCard(),
+          const SizedBox(height: 16),
+          const RecoveryQuoteCard(),
 
+
+
+          const SizedBox(height: 16),
           // Tabs
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -82,15 +92,22 @@ class HomeScreen extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
-
           // Sessions list
           ...controller.filteredSessions.map((s) => SessionCard(
             session: s,
             onTap: () => controller.openSession(s['id']),
           )),
+          const SizedBox(height: 16),
+          const ImageGalleryCard(),
+          const SizedBox(height: 16),
+          const JourneyProgressCard(),
+          const SizedBox(height: 16),
+          const CompletedSessionsList(),
+
+
         ],
       )),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
-  }
-}
+  }}
+

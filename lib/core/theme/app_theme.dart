@@ -1,4 +1,3 @@
-// core/theme/app_colors.dart
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -24,10 +23,14 @@ class AppColors {
   static const Color mutedDark = Color(0xFF9CA3AF);
   static const Color textDark = Color(0xFFF3F4F6);
 
+
   // Shared / derived
   static Color get glassLight => Colors.black.withOpacity(0.05);
+
   static Color get glassDark => Colors.white.withOpacity(0.05);
 
   static Color get shadowLight => Colors.black.withOpacity(0.08);
+
   static Color get shadowDark => Colors.black.withOpacity(0.5);
+
 }

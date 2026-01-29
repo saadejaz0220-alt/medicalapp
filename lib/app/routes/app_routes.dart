@@ -1,4 +1,5 @@
 import 'package:medicalapp/screens/account/edit_profile_controller.dart';
+import 'package:medicalapp/screens/session_detail/session_controller.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 abstract class AppRoutes {
@@ -14,5 +15,8 @@ abstract class AppRoutes {
   static const CONTACT = '/contact';
   static const EditProfileController = '/edit-profile';
   static const YoutubePlayer = '/youtube-player';
+  static const ProgressController = '/progress';
+  static const SessionDetailController = '/session-detail';
+  static const SessionPlayerController = '/session-player';
 }
 

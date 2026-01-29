@@ -34,7 +34,7 @@ class RootScreen extends StatelessWidget {
   }
 
   static final List<Widget> _screens = [
-    const HomeScreen(),
+    HomeScreen(),
     const CalendarScreen(),
     const MediaLibraryScreen(),
     const ContactScreen(),
