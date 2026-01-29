@@ -9,6 +9,10 @@ class MediaController extends GetxController {
   final mediaItems = <MediaItem>[].obs;
   final searchQuery = ''.obs;
   final selectedTag = ''.obs; // empty = all
+ /* final openSession = ''.obs;
+  final filteredSessions=<Map<String, dynamic>>[].obs;
+
+*/
 
   final availableTags = [
     '',

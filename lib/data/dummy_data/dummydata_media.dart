@@ -1,7 +1,7 @@
 final List<Map<String, dynamic>> media = [
   {
     'id': 'm1',
-    'title': 'Deep Sleep Reset Meditation',
+    'title': 'Mindfullness',
     'tag': 'Sleep',
     'duration': 22,
     'thumbnail': 'https://i.ytimg.com/vi/kJX8rKqNg4c/maxresdefault.jpg',

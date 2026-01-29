@@ -42,8 +42,9 @@ class LoginScreen extends GetView<AuthController> {
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
-
+                const SizedBox(height: 20),
+                Text("Phone or Email"),
+                const SizedBox(height:5),
                 // Contact field
                 TextField(
                   onChanged: (val) => controller.loginContact.value = val,
@@ -55,8 +56,9 @@ class LoginScreen extends GetView<AuthController> {
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
-                const SizedBox(height: 24),
-
+                const SizedBox(height: 15),
+                   Text("6-Digit Code"),
+                const SizedBox(height:5),
                 // Code field
                 TextField(
                   onChanged: (val) => controller.loginCode.value = val,
@@ -97,7 +99,7 @@ class LoginScreen extends GetView<AuthController> {
                 const SizedBox(height: 24),
 
                 // Links
-                Row(
+                /*Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
@@ -110,7 +112,7 @@ class LoginScreen extends GetView<AuthController> {
                       child: const Text('Create account'),
                     ),
                   ],
-                ),
+                ),*/
               ],
             ),
           ),

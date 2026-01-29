@@ -18,7 +18,7 @@ class AppPages {
   static final routes = [
     GetPage(name: '/', page: () => RootScreen()),
     GetPage(name: AppRoutes.LOGIN, page: () => LoginScreen()),
-    GetPage(name: AppRoutes.SIGNUP, page: () => SignupScreen()),
+   // GetPage(name: AppRoutes.SIGNUP, page: () => SignupScreen()),
 
     GetPage(name: AppRoutes.HOME, page: () => HomeScreen()),
     GetPage(name: AppRoutes.SESSION_DETAIL, page: () => SessionDetailScreen()),
