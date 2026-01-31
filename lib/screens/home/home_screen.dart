@@ -1,14 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import '../../app/routes/app_routes.dart';
-import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
+
+import '../../widgets/common/embedded_media_player.dart';
 import '../../widgets/common/image_gallary_grid.dart';
 import '../../widgets/common/journey_progress_card.dart';
+import '../../widgets/common/mediacard.dart';
 import '../../widgets/common/motivational_quote_card.dart';
 import '../../widgets/common/progress_card.dart';
 import '../../widgets/common/session_card.dart';
@@ -71,6 +74,7 @@ class HomeScreen extends GetView<HomeController> {
 
 
 
+
           const SizedBox(height: 16),
           // Tabs
           SingleChildScrollView(
@@ -92,11 +96,27 @@ class HomeScreen extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
-          // Sessions list
-          ...controller.filteredSessions.map((s) => SessionCard(
-            session: s,
-            onTap: () => controller.openSession(s['id']),
-          )),
+          // Post-Session Workouts (only for 'Next' tab)
+          if (controller.selectedTab.value == 'next' && controller.postSessionMedias.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                "Post-Session Workouts",
+                style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ...controller.postSessionMedias.map((media) => MediaCard(
+                  media: media,
+                  tagLabel: controller.selectedTab.value.capitalizeFirst,
+                  onTap: () => controller.playMedia(media),
+                  onPlay: () => controller.playMedia(media),
+                )),
+            const SizedBox(height: 8),
+            const Divider(),
+            const SizedBox(height: 16),
+          ],
+
+
           const SizedBox(height: 16),
           const ImageGalleryCard(),
           const SizedBox(height: 16),
@@ -107,7 +127,7 @@ class HomeScreen extends GetView<HomeController> {
 
         ],
       )),
-      bottomNavigationBar: const CustomBottomNavBar(),
+
     );
   }}
 

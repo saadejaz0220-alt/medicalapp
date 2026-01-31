@@ -19,8 +19,8 @@ class AccountController extends GetxController {
   }
 
   void _loadUserData() {
-    name.value = DummyData.user['name'] ?? 'Amina Khan';
-    email.value = DummyData.user['email'] ?? 'amina.khan@example.com';
+    name.value = GetStorage().read('userName') ?? 'Patient';
+    email.value = GetStorage().read('userEmail') ?? 'No Email';
   }
 
   void savePreferences() {

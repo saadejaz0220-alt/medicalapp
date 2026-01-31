@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
+
 import 'calendar_controller.dart';
 import '../../../core/theme/app_colors.dart'; // your color palette
 
@@ -113,8 +113,7 @@ class CalendarScreen extends GetView<CalendarController> {
           ],
         ),
       ),
-        bottomNavigationBar:
-        const CustomBottomNavBar(),
+
     );
   }
 

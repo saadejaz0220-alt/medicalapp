@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
+
 import '../../widgets/common/themeswitch.dart';
 import 'account_controller.dart';
 import '../../../core/theme/app_colors.dart';
@@ -205,8 +205,7 @@ class AccountScreen extends GetView<AccountController> {
           ],
         ),
       ),
-      bottomNavigationBar:
-      const CustomBottomNavBar(),
+
     );
   }
 }

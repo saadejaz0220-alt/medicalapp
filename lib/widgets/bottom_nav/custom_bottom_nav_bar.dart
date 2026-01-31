@@ -13,7 +13,13 @@ class CustomBottomNavBar extends StatelessWidget {
       final currentIndex = navCtrl.currentIndex.value;
 
       return Container(
-        height: 80,
+        height: 80 + MediaQuery.of(context).padding.bottom, 
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom : 16,
+          left: 16, 
+          right: 16,
+          top: 4,
+        ),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           border: Border(
@@ -105,8 +111,8 @@ class _NavItem extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(16),
@@ -195,7 +201,7 @@ class _NavItem extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          margin: const EdgeInsets.only(left: 4, right: 4, top: 0, bottom: 4),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isActive

@@ -21,16 +21,10 @@ class RootScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authCtrl = Get.find<AuthController>();
 
-    return Obx(() {
-      if (!authCtrl.isLoggedIn) {
-        return const LoginScreen();
-      }
-
-      return Scaffold(
-        body: Obx(() => _screens[Get.find<NavController>().currentIndex.value]),
-        bottomNavigationBar: const CustomBottomNavBar(),
-      );
-    });
+    return Scaffold(
+      body: Obx(() => _screens[Get.find<NavController>().currentIndex.value]),
+      bottomNavigationBar: const CustomBottomNavBar(),
+    );
   }
 
   static final List<Widget> _screens = [

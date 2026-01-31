@@ -12,16 +12,48 @@ import 'app/bindings/initial_Bindings.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 import 'core/theme/theme_controller.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
+
+Map<String, dynamic>? loggedInUserData;
+
+void updateLoggedInUserData(Map<String, dynamic>? data) {
+  loggedInUserData = data;
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  runApp(const MyApp());
+  final bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
+
+  if (isLoggedIn) {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final doc = await FirebaseFirestore.instance.collection('Patients').doc(uid).get();
+      if (doc.exists) {
+        loggedInUserData = doc.data();
+      }
+    } catch (e) {
+      debugPrint('Error fetching persistent user data: $e');
+    }
+  }
+
+  // TODO: Remove this in production. Forces logout to verify initial route.
+  // await GetStorage().erase(); 
+  
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +65,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(),
       darkTheme: ThemeData.light(),
       themeMode: themeCtrl.themeMode,
-      initialRoute: AppRoutes.LOGIN,
+      initialRoute: isLoggedIn ? '/' : AppRoutes.LOGIN,
       getPages: AppPages.routes,
       initialBinding: InitialBinding(),
     );

@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "636178650187",
+    "firebase_url": "https://clinic-audio-app-default-rtdb.firebaseio.com",
+    "project_id": "clinic-audio-app",
+    "storage_bucket": "clinic-audio-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636178650187:android:d6b3af30629cfc748ba9ce",
+        "android_client_info": {
+          "package_name": "com.example.clinic_audio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu5uZcb9are_ySppDkGbJU28LprsHcqUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636178650187:android:fbd04cbf29a01c4f8ba9ce",
+        "android_client_info": {
+          "package_name": "com.infinitywellness.clinicaudioapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu5uZcb9are_ySppDkGbJU28LprsHcqUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

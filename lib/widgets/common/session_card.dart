@@ -187,7 +187,7 @@ class SessionCard extends StatelessWidget {
                               ),
                               child: const Text('Open', style: TextStyle(fontSize: 13,color: Colors.black,fontWeight: FontWeight.bold)),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: onPlay ?? () => Get.snackbar('Play', 'Playing $title'),
                               style: ElevatedButton.styleFrom(

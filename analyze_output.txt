@@ -1,0 +1,91 @@
+Analyzing medicalapp...                                         
+
+   info • The file name 'initial_Bindings.dart' isn't a lower_case_with_underscores identifier • lib/app/bindings/initial_Bindings.dart:1:1 • file_names
+warning • Unused import: 'package:medicalapp/screens/account/edit_profile_controller.dart' • lib/app/routes/app_routes.dart:1:8 • unused_import
+warning • Unused import: 'package:medicalapp/screens/session_detail/session_controller.dart' • lib/app/routes/app_routes.dart:2:8 • unused_import
+warning • Unused import: 'package:youtube_player_flutter/youtube_player_flutter.dart' • lib/app/routes/app_routes.dart:3:8 • unused_import
+   info • The constant name 'LOGIN' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:6:16 • constant_identifier_names
+   info • The constant name 'HOME' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:8:16 • constant_identifier_names
+   info • The constant name 'SESSION_DETAIL' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:9:23 • constant_identifier_names
+   info • The constant name 'ROOT' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:10:16 • constant_identifier_names
+   info • The constant name 'SESSION_PLAYER' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:11:16 • constant_identifier_names
+   info • The constant name 'CALENDAR' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:12:16 • constant_identifier_names
+   info • The constant name 'MEDIA' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:13:16 • constant_identifier_names
+   info • The constant name 'ACCOUNT' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:14:16 • constant_identifier_names
+   info • The constant name 'CONTACT' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:15:16 • constant_identifier_names
+   info • The constant name 'EditProfileController' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:16:16 • constant_identifier_names
+   info • The constant name 'YoutubePlayer' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:17:16 • constant_identifier_names
+   info • The constant name 'ProgressController' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:18:16 • constant_identifier_names
+   info • The constant name 'SessionDetailController' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:19:16 • constant_identifier_names
+   info • The constant name 'SessionPlayerController' isn't a lowerCamelCase identifier • lib/app/routes/app_routes.dart:20:16 • constant_identifier_names
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_colors.dart:28:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_colors.dart:29:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_colors.dart:31:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_colors.dart:32:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:28:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:30:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:32:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:34:47 • deprecated_member_use
+warning • This function has a nullable return type of 'List<MediaItem>?', but ends without returning a value • lib/data/models/media_item.dart:26:29 • body_might_complete_normally_nullable
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/main.dart:2:8 • unnecessary_import
+warning • Unused import: 'package:medicalapp/screens/auth/auth_controller.dart' • lib/main.dart:8:8 • unused_import
+warning • Unused import: 'package:medicalapp/widgets/bottom_nav/Navigation_controller.dart' • lib/main.dart:9:8 • unused_import
+warning • Unused import: '../../data/dummy_data/dummy_data.dart' • lib/screens/account/account_controller.dart:5:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/account/account_screen.dart:34:57 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/screens/auth/auth_controller.dart:41:7 • avoid_print
+warning • Unused import: '../../app/routes/app_routes.dart' • lib/screens/auth/login_screen.dart:5:8 • unused_import
+   info • The file name 'signup-screen.dart' isn't a lower_case_with_underscores identifier • lib/screens/auth/signup-screen.dart:1:1 • file_names
+warning • Unused import: '../../data/dummy_data/dummydata_progress.dart' • lib/screens/calendar/calendar_controller.dart:7:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/calendar/calendar_screen.dart:86:50 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/calendar/calendar_screen.dart:170:39 • deprecated_member_use
+warning • Unused import: 'package:url_launcher/url_launcher.dart' • lib/screens/contact/contact_screen.dart:4:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:43:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:104:50 • deprecated_member_use
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/screens/home/home_screen.dart:1:8 • unnecessary_import
+warning • Unused import: 'package:get/get_rx/src/rx_types/rx_types.dart' • lib/screens/home/home_screen.dart:5:8 • unused_import
+   info • Constructors in '@immutable' classes should be declared as 'const' • lib/screens/home/home_screen.dart:18:3 • prefer_const_constructors_in_immutables
+warning • Unused import: '../../widgets/common/session_card.dart' • lib/screens/media/media_library_screen.dart:7:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/media/media_library_screen.dart:50:28 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/screens/media/youtube_player_screen.dart:87:19 • avoid_print
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/screens/roots/root_screen.dart:1:8 • unnecessary_import
+warning • Unused import: '../auth/login_screen.dart' • lib/screens/roots/root_screen.dart:11:8 • unused_import
+warning • The value of the local variable 'authCtrl' isn't used • lib/screens/roots/root_screen.dart:22:11 • unused_local_variable
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/screens/session_detail/session_controller.dart:1:8 • unnecessary_import
+warning • The value of the local variable 'args' isn't used • lib/screens/session_detail/session_controller.dart:15:11 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/session_detail/session_controller.dart:60:64 • deprecated_member_use
+   info • Unnecessary use of multiple underscores • lib/screens/session_detail/session_detail_screen.dart:83:43 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/screens/session_detail/session_detail_screen.dart:83:47 • unnecessary_underscores
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/session_detail/session_detail_screen.dart:101:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/session_detail/session_detail_screen.dart:211:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/session_detail/session_detail_screen.dart:246:42 • deprecated_member_use
+   info • The file name 'Navigation_controller.dart' isn't a lower_case_with_underscores identifier • lib/widgets/bottom_nav/Navigation_controller.dart:1:1 • file_names
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/bottom_nav/custom_bottom_nav_bar.dart:27:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/bottom_nav/custom_bottom_nav_bar.dart:33:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/bottom_nav/custom_bottom_nav_bar.dart:97:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/bottom_nav/custom_bottom_nav_bar.dart:101:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/bottom_nav/custom_bottom_nav_bar.dart:104:26 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/gradient_button.dart:63:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/gradient_button.dart:101:74 • deprecated_member_use
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/widgets/common/image_gallary_grid.dart:1:8 • unnecessary_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/image_gallary_grid.dart:45:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/journey_progress_card.dart:13:28 • deprecated_member_use
+   info • The 'child' argument should be last in widget constructor invocations • lib/widgets/common/journey_progress_card.dart:56:15 • sort_child_properties_last
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/journey_progress_card.dart:73:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/journey_progress_card.dart:89:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/mediacard.dart:61:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/mediacard.dart:62:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/mediacard.dart:83:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/mediacard.dart:122:74 • deprecated_member_use
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/widgets/common/motivational_quote_card.dart:1:8 • unnecessary_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/motivational_quote_card.dart:14:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/motivational_quote_card.dart:27:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/motivational_quote_card.dart:28:33 • deprecated_member_use
+warning • Unused import: 'package:get/get_core/src/get_main.dart' • lib/widgets/common/progress_card.dart:2:8 • unused_import
+warning • Unused import: 'package:get/get_instance/src/extension_instance.dart' • lib/widgets/common/progress_card.dart:3:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/session_card.dart:81:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/session_card.dart:134:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/session_card.dart:165:74 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/themeswitch.dart:24:57 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/common/themeswitch.dart:25:40 • deprecated_member_use
+
+87 issues found. (ran in 2.6s)

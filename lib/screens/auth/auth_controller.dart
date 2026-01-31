@@ -1,83 +1,86 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../app/routes/app_routes.dart';
+import '../../main.dart';
 
 class AuthController extends GetxController {
   final storage = GetStorage();
-
   final RxBool isLoading = false.obs;
 
-  // Login fields
-  final RxString loginContact = ''.obs;
-  final RxString loginCode = ''.obs;
+  // Login fields (Email and Password)
+  final RxString loginContact = ''.obs; // used for email
+  final RxString loginCode = ''.obs;    // used for password
 
-  // Signup fields
-  final RxString signupName = ''.obs;
-  final RxString signupEmail = ''.obs;
-  final RxString signupPhone = ''.obs;
-
-  bool get isLoggedIn => storage.read('isLoggedIn') == true;
+  bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
   @override
   void onInit() {
     super.onInit();
-    // Optional: auto redirect if already "logged in"
-    if (isLoggedIn) {
-      Future.delayed(Duration.zero, () => Get.offAllNamed(AppRoutes.HOME));
+    // Use FirebaseAuth listener for better state management
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        _syncUserData(user.uid);
+      }
+    });
+  }
+
+  Future<void> _syncUserData(String uid) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('Patients').doc(uid).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        await storage.write('userName', data['name'] ?? 'Patient');
+        await storage.write('userEmail', data['email'] ?? '');
+        await storage.write('userContact', data['contact'] ?? '');
+        updateLoggedInUserData(data);
+        // sync other data as needed
+      }
+    } catch (e) {
+      print('Error syncing user data: $e');
     }
   }
 
   Future<void> requestCode() async {
-    final contact = loginContact.value.trim();
-    if (contact.isEmpty) {
-      Get.snackbar('Error', 'Please enter phone or email');
-      return;
-    }
-
-    // In real app → call API to send OTP
-    // Here: mock alert with random code (like original)
-    final mockCode = (100000 + DateTime.now().millisecond % 900000).toString();
-    Get.snackbar(
-      'Mock OTP Sent',
-      'Your code is: $mockCode\n(sent to $contact)',
-      duration: const Duration(seconds: 5),
-    );
-
-    // For demo: auto-fill code field with 123456
-    loginCode.value = '123456';
+    Get.snackbar('Coming Soon', 'Password reset will be available soon.');
   }
 
   Future<void> doLogin() async {
     isLoading.value = true;
 
-    final contact = loginContact.value.trim();
-    final code = loginCode.value.trim();
+    final email = loginContact.value.trim();
+    final password = loginCode.value.trim();
 
-    await Future.delayed(const Duration(milliseconds: 800)); // fake delay
+    if (email.isEmpty || password.isEmpty) {
+      Get.snackbar('Error', 'Please enter email and password');
+      isLoading.value = false;
+      return;
+    }
 
-    // Demo logic: accept "123456" or any non-empty contact
-    if (code == '123456' && contact.isNotEmpty) {
-      // Save "logged in" state
-      await storage.write('isLoggedIn', true);
-      await storage.write('userContact', contact);
+    try {
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      // Optional: save mock user name
-      String name = contact.split('@').first.split('.').map((e) => e.capitalizeFirst).join(' ');
-      if (name.isEmpty) name = 'Patient';
-      await storage.write('userName', name);
-
-      Get.snackbar('Success', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
-      Get.offAllNamed(AppRoutes.HOME);
-    } else {
-      Get.snackbar('Error', 'Invalid code or contact');
+      if (userCredential.user != null) {
+        await _syncUserData(userCredential.user!.uid);
+        Get.snackbar('Success', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
+        Get.offAllNamed('/');
+      }
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Error', e.message ?? 'Login failed');
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred');
     }
 
     isLoading.value = false;
   }
 
+  /*
   Future<void> doSignup() async {
     isLoading.value = true;
 
@@ -100,16 +103,18 @@ class AuthController extends GetxController {
     await storage.write('userPhone', phone);
 
     Get.snackbar('Account Created', 'Welcome, $name!', backgroundColor: Colors.green[800], colorText: Colors.white);
-    Get.offAllNamed(AppRoutes.HOME);
+    Get.offAllNamed('/');
 
     isLoading.value = false;
   }
+  */
 
   Future<void> logout() async {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
+        backgroundColor: const Color(0xFF2F2F2F),
+        title: const Text('Log Out', style: TextStyle(color: Colors.white)),
+        content: const Text('Are you sure you want to log out?', style: TextStyle(color: Colors.white70)),
         actions: [
           TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
           TextButton(
@@ -121,7 +126,9 @@ class AuthController extends GetxController {
     );
 
     if (confirm == true) {
-      await storage.erase(); // or selective remove
+      await FirebaseAuth.instance.signOut();
+      // Keep storage.erase() if we want to clear name/email/contact cache on logout
+      await storage.erase();
       Get.offAllNamed(AppRoutes.LOGIN);
       Get.snackbar('Logged Out', 'See you soon!');
     }

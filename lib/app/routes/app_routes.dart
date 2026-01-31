@@ -4,7 +4,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 abstract class AppRoutes {
   static const LOGIN = '/login';
-  static const SIGNUP = '/signup';
+  // static const SIGNUP = '/signup';
   static const HOME = '/home';
   static const String SESSION_DETAIL = '/session-detail/:id';
   static const ROOT = '/root';

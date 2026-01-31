@@ -16,8 +16,11 @@ class SessionDetailController extends GetxController {
     final id = Get.parameters['id'] != null ? int.tryParse(Get.parameters['id']!) : null;
 
     if (id == null) {
-      Get.snackbar('Error', 'Invalid session ID');
-      Get.back();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.snackbar('Error', 'Invalid session ID');
+        Get.back();
+      });
+      isLoading.value = false;
       return;
     }
 
@@ -38,8 +41,10 @@ class SessionDetailController extends GetxController {
         thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg", // fallback
       );
     } else {
-      Get.snackbar('Not Found', 'Session not found');
-      Get.back();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.snackbar('Not Found', 'Session not found');
+        Get.back();
+      });
     }
 
     isLoading.value = false;

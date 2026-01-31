@@ -8,11 +8,15 @@ import '../../../data/models/media_item.dart';
 class MediaCard extends StatelessWidget {
   final MediaItem media;
   final VoidCallback onTap;
+  final VoidCallback? onPlay;
+  final String? tagLabel;
 
   const MediaCard({
     super.key,
     required this.media,
     required this.onTap,
+    this.onPlay,
+    this.tagLabel,
   });
 
   @override
@@ -32,42 +36,62 @@ class MediaCard extends StatelessWidget {
               // Thumbnail with play overlay
               Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: media.thumbnailUrl,
-                      width: 140,
-                      height: 95,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
-                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.black87,
-                        child: const Icon(Icons.error, color: Colors.white),
-                      ),
+                   Container(
+                    width: 140,
+                    height: 95,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: media.thumbnailUrl.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: CachedNetworkImage(
+                              imageUrl: media.thumbnailUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.play_circle_outline,
+                                color: Colors.white54,
+                                size: 40,
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Icon(
+                              media.uploadType == 'Audio'
+                                  ? Icons.audiotrack_rounded
+                                  : Icons.play_arrow_rounded,
+                              color: Colors.white30,
+                              size: 40,
+                            ),
+                          ),
                   ),
 
-                  // Play icon overlay
+                  // Play icon overlay (only for videos or as a general indicator)
+                  if (media.uploadType != 'Audio' || media.thumbnailUrl.isNotEmpty)
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.black.withOpacity(0.1),
-                            Colors.black.withOpacity(0.6),
+                            Colors.black.withOpacity(0.4),
                           ],
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Icon(
-                          Icons.play_circle_fill_rounded,
-                          size: 48,
-                          color: Colors.white70,
+                          media.uploadType == 'Audio' 
+                              ? Icons.play_circle_fill_rounded 
+                              : Icons.play_circle_fill_rounded,
+                          size: 44,
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                     ),
@@ -84,10 +108,10 @@ class MediaCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        '${media.duration}m',
+                        media.duration,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -115,47 +139,67 @@ class MediaCard extends StatelessWidget {
 
                     Row(
                       children: [
-                        // Tag badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            media.tag,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                        if (tagLabel != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              tagLabel!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
+                        if (tagLabel != null)
+                          const SizedBox(width: 12),
 
                         // Session origin
-                        Text(
-                          'From Session ${media.fromSession}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[700],
+                        Expanded(
+                          child: Text(
+                            'From Session: ${media.fromSession}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ),
                       ],
                     ),
 
-                    const Spacer(),
-
-                    // Play button
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: onTap,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          minimumSize: const Size(0, 36),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Progress badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '${media.progress}%',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
-                        child: const Text('Play'),
-                      ),
+                        // Play button
+                        ElevatedButton(
+                          onPressed: onPlay ?? onTap,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            minimumSize: const Size(0, 36),
+                          ),
+                          child: const Text('Play'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

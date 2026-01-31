@@ -12,8 +12,6 @@ class NavController extends GetxController {
   ];
 
   void changeIndex(int index) {
-    if (index == currentIndex.value) return;
-    Get.offAllNamed(screens[index]);
     currentIndex.value = index;
   }
 }

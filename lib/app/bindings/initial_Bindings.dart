@@ -8,7 +8,7 @@ import '../../screens/auth/auth_controller.dart';
 import '../../screens/calendar/calendar_controller.dart';
 import '../../screens/home/home_controller.dart';
 import '../../screens/media/media_controller.dart';
-import '../../screens/session_detail/session_controller.dart';
+
 import '../../widgets/bottom_nav/Navigation_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -20,7 +20,7 @@ class InitialBinding extends Bindings {
    // Get.lazyPut(() => NavController());
     Get.put(HomeController());
     Get.put(AccountController());
-    Get.put(SessionDetailController());
+
     Get.put(MediaController());
     Get.put(CalendarController());
     Get.put(EditProfileController());

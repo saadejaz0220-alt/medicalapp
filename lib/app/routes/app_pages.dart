@@ -3,7 +3,7 @@ import 'package:medicalapp/screens/account/edit_profile_screen.dart';
 
 import '../../screens/account/account_screen.dart';
 import '../../screens/auth/login_screen.dart';
-import '../../screens/auth/signup-screen.dart';
+// import '../../screens/auth/signup-screen.dart';
 import '../../screens/calendar/calendar_screen.dart';
 import '../../screens/contact/contact_screen.dart';
 import '../../screens/home/home_screen.dart';
@@ -18,7 +18,7 @@ class AppPages {
   static final routes = [
     GetPage(name: '/', page: () => RootScreen()),
     GetPage(name: AppRoutes.LOGIN, page: () => LoginScreen()),
-   // GetPage(name: AppRoutes.SIGNUP, page: () => SignupScreen()),
+//    GetPage(name: AppRoutes.SIGNUP, page: () => SignupScreen()),
 
     GetPage(name: AppRoutes.HOME, page: () => HomeScreen()),
     GetPage(name: AppRoutes.SESSION_DETAIL, page: () => SessionDetailScreen()),

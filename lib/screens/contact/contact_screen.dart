@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
+
 import 'contact_controller.dart';
 import '../../../core/theme/app_colors.dart'; // your accent colors
 
@@ -129,8 +129,7 @@ class ContactScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar:
-      const CustomBottomNavBar(),
+
     );
   }
 
