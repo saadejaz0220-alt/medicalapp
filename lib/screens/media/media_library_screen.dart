@@ -13,7 +13,7 @@ class MediaLibraryScreen extends GetView<MediaController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Media Library')),
-      body: Obx(() => Column(
+      body: Column(
         children: [
           // Header
           Padding(
@@ -41,7 +41,11 @@ class MediaLibraryScreen extends GetView<MediaController> {
 
           // Media List
           Expanded(
-            child: () {
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
               final items = controller.filteredMedia;
 
               if (items.isEmpty) {
@@ -65,13 +69,14 @@ class MediaLibraryScreen extends GetView<MediaController> {
                 itemCount: items.length,
                 itemBuilder: (_, i) => MediaCard(
                   media: items[i],
+                  tagLabel: 'Post-Session',
                   onPlay: () => controller.playMedia(items[i]),
-                  onTap: () => controller.playMedia(items[i]), // Update onTap to also play
+                  onTap: () => controller.playMedia(items[i]),
                 ),
               );
-            }(),
+            }),
           ),
       ]),
-    ));
+    );
   }
 }
