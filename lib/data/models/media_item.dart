@@ -12,7 +12,7 @@ class MediaItem {
   final String format;
   final String fromSession;
   final String fromSessionId;
-  final int progress;
+  final double progress;
 
   MediaItem({
     required this.id,
@@ -25,7 +25,7 @@ class MediaItem {
     required this.format,
     required this.fromSession,
     required this.fromSessionId,
-    this.progress = 0,
+    this.progress = 0.0,
   });
 
   bool get isYoutube => youtubeId != null;
@@ -70,7 +70,7 @@ class MediaItem {
       format: data['format'] ?? '',
       fromSession: data['fromSession'] ?? 'Unknown Session',
       fromSessionId: data['fromSessionId'] ?? '',
-      progress: data['progress'] ?? 0,
+      progress: (data['progress'] ?? 0).toDouble(),
     );
   }
 
@@ -101,7 +101,7 @@ class MediaItem {
     String? format,
     String? fromSession,
     String? fromSessionId,
-    int? progress,
+    double? progress,
   }) {
     return MediaItem(
       id: id ?? this.id,

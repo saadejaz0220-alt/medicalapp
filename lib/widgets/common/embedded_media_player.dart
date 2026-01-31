@@ -6,7 +6,7 @@ import '../../data/models/media_item.dart';
 
 class EmbeddedMediaPlayer extends StatefulWidget {
   final MediaItem media;
-  final void Function(int percentage) onProgressUpdate;
+  final void Function(double percentage) onProgressUpdate;
   final VoidCallback onClose;
 
   const EmbeddedMediaPlayer({
@@ -30,7 +30,7 @@ class _EmbeddedMediaPlayerState extends State<EmbeddedMediaPlayer> {
   bool _isInitialized = false;
   String? _errorMessage;
   
-  int _lastPercentage = 0;
+  double _lastPercentage = 0;
   bool _closed = false;
 
   @override
@@ -96,23 +96,23 @@ class _EmbeddedMediaPlayerState extends State<EmbeddedMediaPlayer> {
 
   void _updateProgress() {
     if (!mounted) return;
-    int percentage = 0;
+    double percentage = 0.0;
     
     if (widget.media.isYoutube && _youtubeController != null) {
       final total = _youtubeController!.metadata.duration.inSeconds;
       final current = _youtubeController!.value.position.inSeconds;
       if (total > 0) {
-        percentage = ((current / total) * 100).round();
+        percentage = (current / total) * 100;
       }
     } else if (_videoPlayerController != null && _videoPlayerController!.value.isInitialized) {
       final total = _videoPlayerController!.value.duration.inSeconds;
       final current = _videoPlayerController!.value.position.inSeconds;
       if (total > 0) {
-        percentage = ((current / total) * 100).round();
+        percentage = (current / total) * 100;
       }
     }
     
-    final clamped = percentage.clamp(0, 100);
+    final clamped = percentage.clamp(0.0, 100.0);
     if (clamped != _lastPercentage) {
       _lastPercentage = clamped;
     }

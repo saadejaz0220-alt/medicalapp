@@ -182,7 +182,7 @@ class MediaCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
-                            '${media.progress}%',
+                            '${media.progress.round()}%',
                             style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,

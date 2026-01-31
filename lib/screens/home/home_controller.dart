@@ -20,6 +20,9 @@ class HomeController extends GetxController {
   var currentSession = <String, dynamic>{}.obs;
 
   var postSessionMedias = <MediaItem>[].obs;
+  var upcomingMedias = <MediaItem>[].obs;
+  var pastMedias = <MediaItem>[].obs;
+  var allMedias = <MediaItem>[].obs;
   var isLoadingMedias = false.obs;
 
   var galleryImages = <String>[].obs;
@@ -33,7 +36,106 @@ class HomeController extends GetxController {
     super.onInit();
     // load from storage if needed
     username.value = GetStorage().read('userName') ?? 'Patient';
-    fetchPostSessionWorkouts();
+    fetchInitialData();
+  }
+
+  Future<void> fetchInitialData() async {
+    await fetchPostSessionWorkouts();
+    await fetchJourneyData();
+  }
+
+  Future<void> fetchJourneyData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      // 1. Fetch Patient Doc
+      final patientDoc = await FirebaseFirestore.instance.collection('Patients').doc(user.uid).get();
+      if (!patientDoc.exists) return;
+
+      final patientData = patientDoc.data()!;
+      final String? journeyId = patientData['journeyId'];
+      final String? visitIdInProgress = patientData['visitIdInProgress'];
+
+      if (journeyId == null || journeyId.isEmpty) {
+        print('HomeController: User not on a journey');
+        return;
+      }
+
+      // 2. Fetch Journey Doc
+      final journeyDoc = await FirebaseFirestore.instance.collection('Journeys').doc(journeyId).get();
+      if (!journeyDoc.exists) return;
+
+      final journeyData = journeyDoc.data()!;
+      final List<dynamic>? visitList = journeyData['VisitList'];
+      if (visitList == null || visitList.isEmpty) return;
+
+      int currentIndex = -1;
+      if (visitIdInProgress != null && visitIdInProgress.isNotEmpty) {
+        currentIndex = visitList.indexOf(visitIdInProgress);
+      }
+
+      List<MediaItem> past = [];
+      List<MediaItem> upcoming = [];
+      List<MediaItem> all = [];
+
+      // 3. Categorize Visits
+      for (int i = 0; i < visitList.length; i++) {
+        final vId = visitList[i].toString();
+        final visitMedia = await _fetchMediaForVisit(vId);
+        
+        all.addAll(visitMedia);
+        if (currentIndex != -1) {
+          if (i < currentIndex) {
+            past.addAll(visitMedia);
+          } else if (i > currentIndex) {
+            upcoming.addAll(visitMedia);
+          }
+        } else {
+          // If no progress yet, all are upcoming? 
+          // Actually, if visitIdInProgress is empty, maybe they haven't started.
+          upcoming.addAll(visitMedia);
+        }
+      }
+
+      pastMedias.assignAll(past);
+      upcomingMedias.assignAll(upcoming);
+      allMedias.assignAll(all);
+
+    } catch (e) {
+      print('Error fetching journey data: $e');
+    }
+  }
+
+  Future<List<MediaItem>> _fetchMediaForVisit(String sessionId) async {
+    List<MediaItem> visitMedias = [];
+    try {
+      final visitDoc = await FirebaseFirestore.instance.collection('Visits').doc(sessionId).get();
+      if (!visitDoc.exists) return [];
+
+      final visitData = visitDoc.data()!;
+      final String sessionTitle = visitData['visitName'] ?? 'Untitled Session';
+      final String visitId = visitData['visitId'] ?? sessionId;
+      final List<dynamic>? postSessionWorkout = visitData['postSessionWorkout'];
+
+      if (postSessionWorkout != null) {
+        for (var workout in postSessionWorkout) {
+          final mediaId = workout['mediaId'];
+          if (mediaId != null) {
+            final mediaDoc = await FirebaseFirestore.instance.collection('Media').doc(mediaId.toString()).get();
+            if (mediaDoc.exists) {
+              final data = Map<String, dynamic>.from(mediaDoc.data()!);
+              data['fromSession'] = sessionTitle;
+              data['fromSessionId'] = visitId;
+              visitMedias.add(MediaItem.fromFirestore(data, mediaDoc.id));
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching media for visit $sessionId: $e');
+    }
+    return visitMedias;
   }
 
   Future<void> fetchPostSessionWorkouts() async {
@@ -124,12 +226,11 @@ class HomeController extends GetxController {
           key: ValueKey(item.url),
           media: item,
           onProgressUpdate: (percentage) {
-            // Update progress in local state
-            final index = postSessionMedias.indexWhere((m) => m.id == item.id);
-            if (index != -1) {
-              postSessionMedias[index] = postSessionMedias[index].copyWith(progress: percentage);
-              postSessionMedias.refresh();
-            }
+            // Update progress in ALL relevant lists
+            _updateProgressInList(postSessionMedias, item.id, percentage);
+            _updateProgressInList(upcomingMedias, item.id, percentage);
+            _updateProgressInList(pastMedias, item.id, percentage);
+            _updateProgressInList(allMedias, item.id, percentage);
           },
           onClose: () => Get.back(),
         ),
@@ -137,7 +238,11 @@ class HomeController extends GetxController {
       barrierDismissible: true,
       barrierColor: Colors.black54,
     );
+  }  void _updateProgressInList(RxList<MediaItem> list, String mediaId, double percentage) {
+    final index = list.indexWhere((m) => m.id == mediaId);
+    if (index != -1) {
+      list[index] = list[index].copyWith(progress: percentage);
+      list.refresh();
+    }
   }
-
-
 }

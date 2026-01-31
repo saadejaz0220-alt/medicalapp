@@ -8,6 +8,7 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import '../../app/routes/app_routes.dart';
 
+import '../../data/models/media_item.dart';
 import '../../widgets/common/embedded_media_player.dart';
 import '../../widgets/common/image_gallary_grid.dart';
 import '../../widgets/common/journey_progress_card.dart';
@@ -96,25 +97,97 @@ class HomeScreen extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
-          // Post-Session Workouts (only for 'Next' tab)
-          if (controller.selectedTab.value == 'next' && controller.postSessionMedias.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                "Post-Session Workouts",
-                style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            ...controller.postSessionMedias.map((media) => MediaCard(
-                  media: media,
-                  tagLabel: controller.selectedTab.value.capitalizeFirst,
-                  onTap: () => controller.playMedia(media),
-                  onPlay: () => controller.playMedia(media),
-                )),
-            const SizedBox(height: 8),
-            const Divider(),
-            const SizedBox(height: 16),
-          ],
+          // Tab Content
+          Obx(() {
+            final tab = controller.selectedTab.value;
+            List<MediaItem> displayList = [];
+            String title = "";
+
+            if (tab == 'next') {
+              displayList = controller.postSessionMedias;
+              title = "Post-Session Workouts";
+            } else if (tab == 'upcoming') {
+              displayList = controller.upcomingMedias;
+              title = "Upcoming Sessions";
+            } else if (tab == 'past') {
+              displayList = controller.pastMedias;
+              title = "Past Sessions";
+            } else if (tab == 'all') {
+              displayList = controller.allMedias;
+              title = "All Sessions";
+            }
+
+            if (displayList.isEmpty) {
+              String emptyMessage = "";
+              if (tab == 'next') {
+                emptyMessage = "No post-session workout available yet.";
+              } else if (tab == 'upcoming') {
+                emptyMessage = "No upcoming sessions on this journey.";
+              } else if (tab == 'past') {
+                emptyMessage = "No past sessions to show.";
+              } else if (tab == 'all') {
+                emptyMessage = "No sessions found in this journey.";
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      title,
+                      style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.1)),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(Icons.history_edu_rounded, size: 48, color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
+                        const SizedBox(height: 12),
+                        Text(
+                          emptyMessage,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                ],
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    title,
+                    style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...displayList.map((media) => MediaCard(
+                      media: media,
+                      tagLabel: tab.capitalizeFirst,
+                      onTap: () => controller.playMedia(media),
+                      onPlay: () => controller.playMedia(media),
+                    )),
+                const SizedBox(height: 8),
+                const Divider(),
+                const SizedBox(height: 16),
+              ],
+            );
+          }),
 
 
           const SizedBox(height: 16),
