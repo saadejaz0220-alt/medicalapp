@@ -6,6 +6,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../main.dart';
+import '../../widgets/bottom_nav/Navigation_controller.dart';
+import '../account/account_controller.dart';
+import '../calendar/calendar_controller.dart';
+import '../home/home_controller.dart';
+import '../media/media_controller.dart';
 
 class AuthController extends GetxController {
   final storage = GetStorage();
@@ -127,10 +132,27 @@ class AuthController extends GetxController {
 
     if (confirm == true) {
       await FirebaseAuth.instance.signOut();
-      // Keep storage.erase() if we want to clear name/email/contact cache on logout
+      
+      // Clear global user data
+      updateLoggedInUserData(null);
+      
+      // Clear persistent storage
       await storage.erase();
+      
+      // Reset controller-specific sensitive variables
+      loginContact.value = '';
+      loginCode.value = '';
+      
+      // Force navigation to login and clear stack
+      // This will automatically and safely trigger disposal of all 
+      // controllers associated with the previous route/binding.
       Get.offAllNamed(AppRoutes.LOGIN);
-      Get.snackbar('Logged Out', 'See you soon!');
+      
+      Get.snackbar(
+        'Logged Out',
+        'See you soon!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 }

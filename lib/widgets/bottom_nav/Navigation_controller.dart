@@ -14,4 +14,8 @@ class NavController extends GetxController {
   void changeIndex(int index) {
     currentIndex.value = index;
   }
+
+  void reset() {
+    currentIndex.value = 0;
+  }
 }

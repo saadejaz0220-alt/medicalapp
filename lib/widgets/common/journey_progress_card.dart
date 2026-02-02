@@ -25,7 +25,7 @@ class JourneyProgressCard extends GetView<HomeController> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: 0.6, // Replace with dynamic logic from controller
+              value: controller.journeyProgress.value, // Dynamic progress logic
               backgroundColor: Colors.grey[300],
               color: Colors.blueAccent,
               minHeight: 8,
@@ -42,61 +42,93 @@ class CompletedSessionsList extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Completed Clinic Sessions",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text("See more →",
-              style: TextStyle(color: Colors.white),
+    return Obx(() {
+      if (controller.completedSessions.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Completed Clinic Sessions",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
-              ) ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ...controller.completedSessions.map((session) => Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              )
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text("See more →"),
+              ),
             ],
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            title: Text(
-              session['title'] ?? 'Session',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text("Completed on ${session['date'] ?? 'N/A'}"),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          ...controller.completedSessions.asMap().entries.map((entry) {
+            final index = entry.key;
+            final session = entry.value;
+            // The earliest session shown will be 'Session 1' at the bottom
+            final sessionDisplayIndex = controller.completedSessions.length - index;
+            
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.black.withOpacity(0.06),
+                    width: 1,
+                  ),
+                ),
               ),
-              child: const Text(
-                "Done",
-                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Session $sessionDisplayIndex: ${session['title'] ?? 'Untitled'}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Completed on ${session['date'] ?? 'N/A'}",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.green, // Success color
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      "Done",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-        )),
-      ],
-    ));
+            );
+          }).toList(),
+        ],
+      );
+    });
   }
 }

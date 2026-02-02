@@ -202,6 +202,22 @@ class AccountScreen extends GetView<AccountController> {
               ],
             ),
             const SizedBox(height: 40),
+
+            // Logout Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: controller.logout,
+                icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                label: const Text('Log Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),

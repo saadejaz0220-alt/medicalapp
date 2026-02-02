@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:medicalapp/screens/account/edit_profile_screen.dart';
-
 import '../../screens/account/account_screen.dart';
+import '../../screens/account/edit_profile_screen.dart';
 import '../../screens/auth/login_screen.dart';
 // import '../../screens/auth/signup-screen.dart';
 import '../../screens/calendar/calendar_screen.dart';
@@ -12,11 +11,16 @@ import '../../screens/media/youtube_player_screen.dart';
 import '../../screens/roots/root_screen.dart';
 import '../../screens/session_detail/session_detail_screen.dart';
 import '../../screens/session_detail/session_player.dart';
+import '../bindings/home_binding.dart';
 import 'app_routes.dart';
 
 class AppPages {
   static final routes = [
-    GetPage(name: '/', page: () => RootScreen()),
+    GetPage(
+      name: '/',
+      page: () => RootScreen(),
+      binding: HomeBinding(),
+    ),
     GetPage(name: AppRoutes.LOGIN, page: () => LoginScreen()),
 //    GetPage(name: AppRoutes.SIGNUP, page: () => SignupScreen()),
 

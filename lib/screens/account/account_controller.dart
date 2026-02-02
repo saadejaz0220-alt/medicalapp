@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-import '../../../core/theme/theme_controller.dart';
+import '../../core/theme/theme_controller.dart';
+import '../auth/auth_controller.dart';
 import '../../data/dummy_data/dummy_data.dart';
 
 class AccountController extends GetxController {
   final ThemeController themeCtrl = Get.find<ThemeController>();
+  final AuthController authCtrl = Get.find<AuthController>();
 
   final RxString name = ''.obs;
   final RxString email = ''.obs;
@@ -38,5 +40,9 @@ class AccountController extends GetxController {
 
   void toggleTheme(bool value) {
     themeCtrl.toggleTheme(); // already handles persistence & UI update
+  }
+
+  void logout() {
+    authCtrl.logout();
   }
 }

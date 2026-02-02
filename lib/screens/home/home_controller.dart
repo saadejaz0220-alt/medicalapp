@@ -16,7 +16,8 @@ class HomeController extends GetxController {
   var streak = 7.obs;
   var username = 'Amna khan'.obs;
   var completedSessions = <Map<String, dynamic>>[].obs;
-  var currentJourney = 'Mind–Body \nRenewal Journey'.obs;
+  var currentJourney = 'None'.obs;
+  var journeyProgress = 0.0.obs;
   var currentSession = <String, dynamic>{}.obs;
 
   var postSessionMedias = <MediaItem>[].obs;
@@ -42,6 +43,116 @@ class HomeController extends GetxController {
   Future<void> fetchInitialData() async {
     await fetchPostSessionWorkouts();
     await fetchJourneyData();
+    await fetchCompletedSessions();
+  }
+
+  Future<void> fetchCompletedSessions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final historyQuery = await FirebaseFirestore.instance
+          .collection('history')
+          .where('patientId', isEqualTo: user.uid)
+          .orderBy('date', descending: true)
+          .get();
+
+      if (historyQuery.docs.isEmpty) {
+        completedSessions.clear();
+        return;
+      }
+
+      // 1. Get Journey context from Patient profile as fallback
+      final patientDoc = await FirebaseFirestore.instance.collection('Patients').doc(user.uid).get();
+      final patientData = patientDoc.data() ?? {};
+      final String? profileJourneyId = patientData['journeyId'];
+      final String? profileJourneyName = patientData['journeyName'];
+
+      // 2. Look at the latest history record
+      final latestHistoryDoc = historyQuery.docs.first;
+      final latestHistoryData = latestHistoryDoc.data();
+      final String latestSessionId = latestHistoryData['sessionId'] ?? '';
+      
+      // Determine the effective Journey ID/Name to filter by
+      String? effectiveJourneyId = latestHistoryData['journeyId'] ?? latestHistoryData['journeyName'] ?? profileJourneyId ?? profileJourneyName;
+
+      List<Map<String, dynamic>> sessions = [];
+
+      if (effectiveJourneyId == null || effectiveJourneyId.isEmpty) {
+        // Condition A: Latest record is a single non-journey visit
+        // Show ALL history records for this specific sessionId to catch duplicates
+        for (var doc in historyQuery.docs) {
+          final data = doc.data();
+          if (data['sessionId'] == latestSessionId) {
+            sessions.add({
+              'id': doc.id,
+              'title': data['sessionName'] ?? 'Untitled Session',
+              'date': _formatTimestamp(data['date']),
+              'sessionId': latestSessionId,
+            });
+          }
+        }
+      } else {
+        // Condition B: Latest record or patient profile belongs to a journey
+        // We first try to treat effectiveJourneyId as a Doc ID to get the VisitList
+        List<dynamic> visitList = [];
+        final journeyDoc = await FirebaseFirestore.instance.collection('Journeys').doc(effectiveJourneyId).get();
+        if (journeyDoc.exists) {
+          final data = journeyDoc.data() as Map<String, dynamic>;
+          visitList = data['VisitList'] ?? [];
+        } else {
+          // If not found by ID, try searching by name
+          final journeySearch = await FirebaseFirestore.instance
+              .collection('Journeys')
+              .where('journeyName', isEqualTo: effectiveJourneyId)
+              .limit(1)
+              .get();
+          if (journeySearch.docs.isNotEmpty) {
+            final data = journeySearch.docs.first.data() as Map<String, dynamic>;
+            visitList = data['VisitList'] ?? [];
+          }
+        }
+          
+        // Filter ALL history records that match this journey context
+        for (var doc in historyQuery.docs) {
+          final data = doc.data();
+          final hJid = data['journeyId'];
+          final hJname = data['journeyName'];
+          final sId = data['sessionId'];
+          
+          bool belongsToJourney = (hJid == effectiveJourneyId) || 
+                                 (hJname == effectiveJourneyId) ||
+                                 (sId != null && visitList.contains(sId));
+                                   
+          if (belongsToJourney) {
+            sessions.add({
+              'id': doc.id,
+              'title': data['sessionName'] ?? 'Untitled Session',
+              'date': _formatTimestamp(data['date']),
+              'sessionId': sId,
+            });
+          }
+        }
+      }
+
+      completedSessions.assignAll(sessions);
+    } catch (e) {
+      print('HomeController: Error in fetchCompletedSessions: $e');
+    }
+  }
+
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'N/A';
+    DateTime dt;
+    if (timestamp is Timestamp) {
+      dt = timestamp.toDate();
+    } else if (timestamp is String) {
+      dt = DateTime.tryParse(timestamp) ?? DateTime.now();
+    } else {
+      dt = DateTime.now();
+    }
+    final months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return "${dt.day} ${months[dt.month - 1]}";
   }
 
   Future<void> fetchJourneyData() async {
@@ -55,24 +166,71 @@ class HomeController extends GetxController {
 
       final patientData = patientDoc.data()!;
       final String? journeyId = patientData['journeyId'];
+      final String? journeyName = patientData['journeyName'];
       final String? visitIdInProgress = patientData['visitIdInProgress'];
 
-      if (journeyId == null || journeyId.isEmpty) {
-        print('HomeController: User not on a journey');
+      // Handle Non-Journey Case
+      if ((journeyId == null || journeyId.isEmpty) && (journeyName == null || journeyName.isEmpty)) {
+        print('HomeController: User not on a journey, defaulting to Past tab');
+        currentJourney.value = 'None';
+        journeyProgress.value = 1.0; 
+        selectedTab.value = 'past';
+        upcomingMedias.clear();
+        postSessionMedias.clear(); // Next tab should be empty if not on journey
+        
+        final List<MediaItem> fullHistory = await _fetchCompleteMediaHistory(user.uid);
+        pastMedias.assignAll(fullHistory);
+        allMedias.assignAll(fullHistory);
         return;
       }
 
-      // 2. Fetch Journey Doc
-      final journeyDoc = await FirebaseFirestore.instance.collection('Journeys').doc(journeyId).get();
-      if (!journeyDoc.exists) return;
+      // 2. Fetch Journey Doc (Try by ID first, then by Name)
+      DocumentSnapshot journeyDoc;
+      if (journeyId != null && journeyId.isNotEmpty) {
+        journeyDoc = await FirebaseFirestore.instance.collection('Journeys').doc(journeyId).get();
+      } else if (journeyName != null && journeyName.isNotEmpty) {
+        final search = await FirebaseFirestore.instance
+            .collection('Journeys')
+            .where('journeyName', isEqualTo: journeyName)
+            .limit(1)
+            .get();
+        if (search.docs.isNotEmpty) {
+          journeyDoc = search.docs.first;
+        } else {
+          // Final fallback: try to use name as Doc ID
+          journeyDoc = await FirebaseFirestore.instance.collection('Journeys').doc(journeyName).get();
+        }
+      } else {
+        // Should not happen due to check above
+        return;
+      }
 
-      final journeyData = journeyDoc.data()!;
+      if (!journeyDoc.exists) {
+        currentJourney.value = 'None';
+        journeyProgress.value = 1.0;
+        return;
+      }
+
+      final journeyData = journeyDoc.data() as Map<String, dynamic>;
+      currentJourney.value = journeyData['journeyName'] ?? 'Unknown Journey';
       final List<dynamic>? visitList = journeyData['VisitList'];
-      if (visitList == null || visitList.isEmpty) return;
+      if (visitList == null || visitList.isEmpty) {
+        journeyProgress.value = 1.0;
+        return;
+      }
 
       int currentIndex = -1;
       if (visitIdInProgress != null && visitIdInProgress.isNotEmpty) {
         currentIndex = visitList.indexOf(visitIdInProgress);
+      }
+
+      // Calculate progress: visits before the current one are done.
+      if (currentIndex == -1) {
+        // Not started? or completed? 
+        // If visitIdInProgress is not in the list, maybe it's done or not started.
+        journeyProgress.value = 0.0;
+      } else {
+        journeyProgress.value = currentIndex / visitList.length;
       }
 
       List<MediaItem> past = [];
@@ -92,8 +250,6 @@ class HomeController extends GetxController {
             upcoming.addAll(visitMedia);
           }
         } else {
-          // If no progress yet, all are upcoming? 
-          // Actually, if visitIdInProgress is empty, maybe they haven't started.
           upcoming.addAll(visitMedia);
         }
       }
@@ -105,6 +261,38 @@ class HomeController extends GetxController {
     } catch (e) {
       print('Error fetching journey data: $e');
     }
+  }
+
+  Future<List<MediaItem>> _fetchCompleteMediaHistory(String patientId) async {
+    List<MediaItem> allMedias = [];
+    try {
+      final historyQuery = await FirebaseFirestore.instance
+          .collection('history')
+          .where('patientId', isEqualTo: patientId)
+          .orderBy('date', descending: true)
+          .get();
+
+      Set<String> processedSessionIds = {};
+
+      for (var doc in historyQuery.docs) {
+        final data = doc.data();
+        final sessionId = data['sessionId'];
+        if (sessionId != null && sessionId is String && sessionId.isNotEmpty) {
+          if (processedSessionIds.contains(sessionId)) continue;
+          processedSessionIds.add(sessionId);
+
+          final visitMedia = await _fetchMediaForVisit(sessionId);
+          for (var item in visitMedia) {
+            if (!allMedias.any((m) => m.id == item.id)) {
+              allMedias.add(item);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching complete media history: $e');
+    }
+    return allMedias;
   }
 
   Future<List<MediaItem>> _fetchMediaForVisit(String sessionId) async {
