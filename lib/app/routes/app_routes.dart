@@ -15,6 +15,7 @@ abstract class AppRoutes {
   static const CONTACT = '/contact';
   static const EditProfileController = '/edit-profile';
   static const YoutubePlayer = '/youtube-player';
+  static const CHANGE_PASSWORD = '/change-password';
   static const ProgressController = '/progress';
   static const SessionDetailController = '/session-detail';
   static const SessionPlayerController = '/session-player';

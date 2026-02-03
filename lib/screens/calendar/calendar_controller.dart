@@ -2,9 +2,7 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../data/dummy_data/dummy_data.dart';
-import '../../data/dummy_data/dummy_label.dart';
-import '../../data/dummy_data/dummydata_progress.dart'; // or your data source
+import '../../services/activity_logger.dart';
 
 class CalendarController extends GetxController {
   var selectedTab = 'next'.obs;
@@ -12,24 +10,26 @@ class CalendarController extends GetxController {
   final RxInt currentYear = DateTime.now().year.obs;
 
   final RxString streakText = 'Current Streak: 0 days'.obs;
-
-  // In CalendarController
-  String? getLabelForDate(String dateStr) {
-    return DummyLabels.getLabelForDate(dateStr);
-  }
-  
-  late final List<String> completedDates;
+  final RxSet<String> activityDates = <String>{}.obs;
+  final RxBool isLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Extract completed dates once
-    completedDates = DummyData.sessions
-        .where((s) => s['status'] == 'completed')
-        .map<String>((s) => s['date'] as String)
-        .toList();
+    fetchActivityData();
+  }
 
-    updateStreak(); // initial
+  Future<void> fetchActivityData() async {
+    isLoading.value = true;
+    try {
+      final dates = await ActivityLogger.fetchActivityDates();
+      activityDates.assignAll(dates);
+      updateStreak();
+    } catch (e) {
+      print('CalendarController: Error fetching activity data: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void changeMonth(int delta) {
@@ -43,8 +43,6 @@ class CalendarController extends GetxController {
       currentMonth.value += 12;
       currentYear.value--;
     }
-
-    updateStreak(); // optional: could recalculate real streak
   }
 
   String get monthYearDisplay {
@@ -53,7 +51,7 @@ class CalendarController extends GetxController {
   }
 
   bool isCompleted(String dateStr) {
-    return completedDates.contains(dateStr);
+    return activityDates.contains(dateStr);
   }
 
   bool isToday(int day) {
@@ -64,8 +62,13 @@ class CalendarController extends GetxController {
   }
 
   void updateStreak() {
-    // Simple mock – in real app you'd calculate from actual logs
-    // Here we just use the value from dummy data / state
-    streakText.value = 'Current Streak: 7 days';
+    final streak = ActivityLogger.calculateStreak(activityDates.toSet());
+    if (streak == 0) {
+      streakText.value = 'No streak yet — start today!';
+    } else if (streak == 1) {
+      streakText.value = 'Current Streak: 1 day 🔥';
+    } else {
+      streakText.value = 'Current Streak: $streak days 🔥';
+    }
   }
 }

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../app/utils/youtube_utils.dart';
+
 
 class YoutubePlayerScreen extends StatefulWidget {
   const YoutubePlayerScreen({super.key});
@@ -21,8 +23,12 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
 
     // Get arguments from navigation
     final args = Get.arguments as Map<String, dynamic>? ?? {};
-    videoId = args['videoId'] ?? 'dQw4w9WgXcQ'; // fallback (Rick Roll!)
+    String idOrUrl = args['videoId'] ?? 'dQw4w9WgXcQ';
     title = args['title'] ?? 'Now Playing';
+
+    // Ensure we have a valid video ID (in case a full URL was passed)
+    videoId = YoutubeUtils.convertUrlToId(idOrUrl) ?? (idOrUrl.length == 11 ? idOrUrl : 'dQw4w9WgXcQ');
+
 
     _controller = YoutubePlayerController(
       initialVideoId: videoId,

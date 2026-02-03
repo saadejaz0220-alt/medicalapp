@@ -12,7 +12,7 @@ class ThemeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    isDark.value = _storage.read('isDarkMode') ?? false;
+    isDark.value = _storage.read('isDarkMode') ?? true;
   }
 
   void toggleTheme() {

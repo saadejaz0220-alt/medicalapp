@@ -1,5 +1,7 @@
 // data/models/media_item.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../app/utils/youtube_utils.dart';
+
 
 class MediaItem {
   final String id;
@@ -34,21 +36,13 @@ class MediaItem {
     final String url = data['url'] ?? '';
     final String type = data['uploadType'] ?? 'Audio';
     String thumb = '';
-    String? yid;
-
-    // Extract YouTube ID if applicable
-    if (url.contains('youtube.com') || url.contains('youtu.be')) {
-      final regExp = RegExp(
-          r'^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*');
-      final match = regExp.firstMatch(url);
-      yid = (match != null && match.group(7)!.length == 11)
-          ? match.group(7)
-          : null;
-      
-      if (yid != null) {
-        thumb = 'https://img.youtube.com/vi/$yid/mqdefault.jpg';
-      }
+    // Extract YouTube ID using the utility
+    final String? yid = YoutubeUtils.convertUrlToId(url);
+    
+    if (yid != null) {
+      thumb = 'https://img.youtube.com/vi/$yid/mqdefault.jpg';
     }
+
 
     // Parse length: "0:14:44.633000" -> "14:44"
     String lengthStr = data['length'] ?? '0:00';

@@ -38,11 +38,8 @@ class AuthController extends GetxController {
       final doc = await FirebaseFirestore.instance.collection('Patients').doc(uid).get();
       if (doc.exists) {
         final data = doc.data()!;
-        await storage.write('userName', data['name'] ?? 'Patient');
-        await storage.write('userEmail', data['email'] ?? '');
-        await storage.write('userContact', data['contact'] ?? '');
         updateLoggedInUserData(data);
-        // sync other data as needed
+        // sync other data as needed if they are not in the main data map
       }
     } catch (e) {
       print('Error syncing user data: $e');
@@ -73,6 +70,14 @@ class AuthController extends GetxController {
 
       if (userCredential.user != null) {
         await _syncUserData(userCredential.user!.uid);
+        
+        // Add password to global data for re-authentication during sensitive operations
+        if (loggedInUserData != null) {
+          final updatedData = Map<String, dynamic>.from(loggedInUserData!);
+          updatedData['password'] = password;
+          updateLoggedInUserData(updatedData);
+        }
+
         Get.snackbar('Success', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
         Get.offAllNamed('/');
       }

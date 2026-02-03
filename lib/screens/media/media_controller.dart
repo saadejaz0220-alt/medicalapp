@@ -8,6 +8,7 @@ import '../../../data/models/media_item.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../data/dummy_data/dummy_data.dart';
 import '../../widgets/common/embedded_media_player.dart';
+import '../../services/activity_logger.dart';
 
 class MediaController extends GetxController {
   final mediaItems = <MediaItem>[].obs;
@@ -111,6 +112,10 @@ class MediaController extends GetxController {
             if (index != -1) {
               mediaItems[index] = mediaItems[index].copyWith(progress: percentage);
               mediaItems.refresh();
+            }
+            // Log activity for streak tracking (once user has watched > 10%)
+            if (percentage > 10) {
+              ActivityLogger.logMediaPlay(item.id);
             }
           },
           onClose: () => Get.back(),

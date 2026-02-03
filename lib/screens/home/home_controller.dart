@@ -6,14 +6,20 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../../app/routes/app_routes.dart';
 import '../../data/dummy_data/dummy_data.dart';
 import '../../data/models/media_item.dart';
 import '../../widgets/common/embedded_media_player.dart';
+import '../../services/activity_logger.dart';
+import '../../main.dart';
 
 class HomeController extends GetxController {
   var selectedTab = 'next'.obs;
-  var streak = 7.obs;
+  var streak = 0.obs;
+  var longestStreak = 0.obs;
+  var clinicalSessionsThisMonth = 0.obs;
+  var daysActiveThisMonth = 0.obs;
   var username = 'Amna khan'.obs;
   var completedSessions = <Map<String, dynamic>>[].obs;
   var currentJourney = 'None'.obs;
@@ -35,8 +41,8 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // load from storage if needed
-    username.value = GetStorage().read('userName') ?? 'Patient';
+    // load from global state
+    username.value = loggedInUserData?['name'] ?? 'Patient';
     fetchInitialData();
   }
 
@@ -44,6 +50,35 @@ class HomeController extends GetxController {
     await fetchPostSessionWorkouts();
     await fetchJourneyData();
     await fetchCompletedSessions();
+    await fetchStreak();
+  }
+
+  Future<void> fetchStreak() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final dates = await ActivityLogger.fetchActivityDates();
+      streak.value = ActivityLogger.calculateStreak(dates);
+      longestStreak.value = ActivityLogger.calculateLongestStreak(dates);
+      daysActiveThisMonth.value = ActivityLogger.calculateDaysActiveThisMonth(dates);
+      
+      // Calculate clinical sessions this month from ALL history records (unfiltered by journey)
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+      
+      final monthlyHistoryQuery = await FirebaseFirestore.instance
+          .collection('history')
+          .where('patientId', isEqualTo: user.uid)
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(firstDayOfMonth))
+          .get();
+
+      clinicalSessionsThisMonth.value = monthlyHistoryQuery.docs.length;
+
+      print('HomeController: Progress metrics updated: current=${streak.value}, longest=${longestStreak.value}, activeMonth=${daysActiveThisMonth.value}, clinicalMonth=${clinicalSessionsThisMonth.value}');
+    } catch (e) {
+      print('HomeController: Error fetching progress metrics: $e');
+    }
   }
 
   Future<void> fetchCompletedSessions() async {
@@ -67,32 +102,51 @@ class HomeController extends GetxController {
       final patientData = patientDoc.data() ?? {};
       final String? profileJourneyId = patientData['journeyId'];
       final String? profileJourneyName = patientData['journeyName'];
+      final Timestamp? journeyAssignedDate = patientData['journeyAssignedDate'];
 
       // 2. Look at the latest history record
       final latestHistoryDoc = historyQuery.docs.first;
       final latestHistoryData = latestHistoryDoc.data();
-      final String latestSessionId = latestHistoryData['sessionId'] ?? '';
+      final String latestSessionId = latestHistoryData['sessionId']?.toString() ?? '';
       
-      // Determine the effective Journey ID/Name to filter by
-      String? effectiveJourneyId = latestHistoryData['journeyId'] ?? latestHistoryData['journeyName'] ?? profileJourneyId ?? profileJourneyName;
+      // Determine if the SESSION ITSELF is part of a journey
+      // Safely convert to String, treating null and empty string the same
+      final dynamic rawJid = latestHistoryData['journeyId'];
+      final dynamic rawJname = latestHistoryData['journeyName'];
+      final String sJid = (rawJid is String) ? rawJid : '';
+      final String sJname = (rawJname is String) ? rawJname : '';
+      
+      print('DEBUG fetchCompletedSessions: latestSessionId=$latestSessionId, sJid="$sJid", sJname="$sJname"');
+      
+      // A session is journey-based ONLY if it has a valid (non-empty, non-placeholder) journey ID or Name
+      // Exclude known placeholder values like "unknown", "none", empty strings
+      bool isValidJourneyId = sJid.isNotEmpty && sJid.toLowerCase() != 'unknown' && sJid.toLowerCase() != 'none';
+      bool isValidJourneyName = sJname.isNotEmpty && sJname.toLowerCase() != 'unknown' && sJname.toLowerCase() != 'none';
+      bool isJourneySession = isValidJourneyId || isValidJourneyName;
+      
+      print('DEBUG fetchCompletedSessions: isJourneySession=$isJourneySession');
+
+      String? effectiveJourneyId;
+      if (isJourneySession) {
+        effectiveJourneyId = sJid.isNotEmpty ? sJid : sJname;
+      }
 
       List<Map<String, dynamic>> sessions = [];
 
+      // 3. Determine if we show a single session (standalone) or a journey group
       if (effectiveJourneyId == null || effectiveJourneyId.isEmpty) {
-        // Condition A: Latest record is a single non-journey visit
-        // Show ALL history records for this specific sessionId to catch duplicates
-        for (var doc in historyQuery.docs) {
-          final data = doc.data();
-          if (data['sessionId'] == latestSessionId) {
-            sessions.add({
-              'id': doc.id,
-              'title': data['sessionName'] ?? 'Untitled Session',
-              'date': _formatTimestamp(data['date']),
-              'sessionId': latestSessionId,
-            });
-          }
-        }
+        // Latest record is a single non-journey visit
+        // SHOW ONLY THE LATEST RECORD
+        print('DEBUG fetchCompletedSessions: Standalone session detected, showing only latest');
+        final data = latestHistoryData;
+        sessions.add({
+          'id': latestHistoryDoc.id,
+          'title': data['sessionName'] ?? 'Untitled Session',
+          'date': _formatTimestamp(data['date']),
+          'sessionId': latestSessionId,
+        });
       } else {
+        print('DEBUG fetchCompletedSessions: Journey session detected, effectiveJourneyId=$effectiveJourneyId');
         // Condition B: Latest record or patient profile belongs to a journey
         // We first try to treat effectiveJourneyId as a Doc ID to get the VisitList
         List<dynamic> visitList = [];
@@ -119,12 +173,21 @@ class HomeController extends GetxController {
           final hJid = data['journeyId'];
           final hJname = data['journeyName'];
           final sId = data['sessionId'];
+          final Timestamp? recordDate = data['date'];
           
           bool belongsToJourney = (hJid == effectiveJourneyId) || 
                                  (hJname == effectiveJourneyId) ||
                                  (sId != null && visitList.contains(sId));
                                    
           if (belongsToJourney) {
+            // Apply Date Filtering for Repeat Journeys
+            if (journeyAssignedDate != null && recordDate != null) {
+              if (recordDate.compareTo(journeyAssignedDate) < 0) {
+                // This record is from a previous instance of the same journey
+                continue;
+              }
+            }
+
             sessions.add({
               'id': doc.id,
               'title': data['sessionName'] ?? 'Untitled Session',
@@ -212,7 +275,11 @@ class HomeController extends GetxController {
       }
 
       final journeyData = journeyDoc.data() as Map<String, dynamic>;
-      currentJourney.value = journeyData['journeyName'] ?? 'Unknown Journey';
+      // Robust name retrieval: check multiple common field names
+      currentJourney.value = journeyData['journeyName'] ?? 
+                             journeyData['Name'] ?? 
+                             journeyData['visitName'] ?? 
+                             'Unnamed Journey';
       final List<dynamic>? visitList = journeyData['VisitList'];
       if (visitList == null || visitList.isEmpty) {
         journeyProgress.value = 1.0;
@@ -419,7 +486,13 @@ class HomeController extends GetxController {
             _updateProgressInList(upcomingMedias, item.id, percentage);
             _updateProgressInList(pastMedias, item.id, percentage);
             _updateProgressInList(allMedias, item.id, percentage);
-          },
+            // Log activity for streak tracking (once user has watched > 10%)
+          if (percentage > 10) {
+            ActivityLogger.logMediaPlay(item.id).then((_) {
+              fetchStreak(); // Refresh streak on home screen immediately
+            });
+          }
+        },
           onClose: () => Get.back(),
         ),
       ),

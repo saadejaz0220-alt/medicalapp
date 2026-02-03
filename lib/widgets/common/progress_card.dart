@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-
+import 'package:get/get.dart';
+import '../../screens/home/home_controller.dart';
 
 class SimpleProgressCard extends StatelessWidget {
   const SimpleProgressCard({super.key});
 
-  RxInt get completedSessions => 10.obs;
-  RxInt get daysMeditated => 15.obs;
-  RxInt get longestStreak => 7.obs;
-
-
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
 
     return Card(
       elevation: 4,
@@ -33,14 +26,14 @@ class SimpleProgressCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            Row(
+            Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _simpleItem(completedSessions, "clinical Sessions \nCompleted", Icons.medical_services),
-                _simpleItem(daysMeditated, " Days\n meditated \nthis month", Icons.self_improvement),
-                _simpleItem(longestStreak, "Longest streak\n(days)", Icons.local_fire_department, isStreak: true),
+                _simpleItem(controller.clinicalSessionsThisMonth, "clinical Sessions \nCompleted", Icons.medical_services),
+                _simpleItem(controller.daysActiveThisMonth, " Days\n meditated \nthis month", Icons.self_improvement),
+                _simpleItem(controller.longestStreak, "Longest streak\n(days)", Icons.local_fire_department, isStreak: true),
               ],
-            ),
+            )),
           ],
         ),
       ),
@@ -52,11 +45,11 @@ class SimpleProgressCard extends StatelessWidget {
       children: [
         Icon(icon, size: 32, color: isStreak ? Colors.orange : Colors.blue),
         const SizedBox(height: 8),
-        Obx(() => Text(
+        Text(
           value.value.toString(),
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        )),
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center),
       ],
     );
   }

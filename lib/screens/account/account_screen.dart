@@ -15,13 +15,14 @@ class AccountScreen extends GetView<AccountController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account'),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Card
+            // ... (rest of profile card)
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -49,7 +50,7 @@ class AccountScreen extends GetView<AccountController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Obx(
-                                () => Text(
+                            () => Text(
                               controller.name.value,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -57,7 +58,7 @@ class AccountScreen extends GetView<AccountController> {
                             ),
                           ),
                           Obx(
-                                () => Text(
+                            () => Text(
                               controller.email.value,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey[700],
@@ -110,7 +111,6 @@ class AccountScreen extends GetView<AccountController> {
                         Text(
                           'Theme',
                           style: Theme.of(context).textTheme.titleMedium,
-
                         ),
                         const ThemeSwitch(),
                       ],
@@ -121,11 +121,10 @@ class AccountScreen extends GetView<AccountController> {
                     Text(
                       'Daily Reminder',
                       style: Theme.of(context).textTheme.titleMedium,
-
                     ),
                     const SizedBox(height: 12),
                     Obx(
-                          () => InkWell(
+                      () => InkWell(
                         onTap: () async {
                           final TimeOfDay? picked = await showTimePicker(
                             context: context,
@@ -172,36 +171,61 @@ class AccountScreen extends GetView<AccountController> {
               ),
             ),
 
-            const SizedBox(height: 40),
-
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Get.back(),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Back')
-                    ,
-                  ),
+            const SizedBox(height: 16),
+            // Profile Save Button repositioned
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: controller.savePreferences,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: controller.savePreferences,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.black/*Theme.of(context).colorScheme.primary*/,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Save', style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ],
+                child: const Text('Save Preferences', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
             ),
-            const SizedBox(height: 40),
+
+            const SizedBox(height: 48),
+
+            // Security Section
+            Text(
+              'Security',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Manage your account security',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: ListTile(
+                onTap: controller.goToChangePassword,
+                contentPadding: const EdgeInsets.all(20),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  child: const Icon(Icons.lock_outline_rounded, color: Colors.blue),
+                ),
+                title: const Text(
+                  'Change Password',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: const Text('Update your 6-digit numeric password'),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+              ),
+            ),
+
+            const SizedBox(height: 48),
+            // const SizedBox(height: 40),
 
             // Logout Button
             SizedBox(

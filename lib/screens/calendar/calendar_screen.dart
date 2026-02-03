@@ -12,6 +12,10 @@ class CalendarScreen extends GetView<CalendarController> {
 
   @override
   Widget build(BuildContext context) {
+    // Refresh activity data whenever the screen is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchActivityData();
+    });
 
     return Scaffold(
       appBar: AppBar(

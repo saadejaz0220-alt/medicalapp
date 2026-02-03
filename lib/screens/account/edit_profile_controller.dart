@@ -1,12 +1,16 @@
-// lib/presentation/screens/account/edit_profile_controller.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import '../auth/auth_controller.dart'; // assuming you have this
+import '../../main.dart';
+import '../auth/auth_controller.dart';
+import '../home/home_controller.dart';
+import 'account_controller.dart';
 
 class EditProfileController extends GetxController {
   final _storage = GetStorage();
-  final authController = Get.find<AuthController>(); // optional if you use it
+  final authController = Get.find<AuthController>();
 
   // Reactive fields
   final name = ''.obs;
@@ -25,9 +29,9 @@ class EditProfileController extends GetxController {
   }
 
   void _loadCurrentProfile() {
-    // Load from storage (or from auth controller if you store there)
-    name.value = _storage.read('userName') ?? 'Amina Khan';
-    email.value = _storage.read('userEmail') ?? 'amina.khan@example.com';
+    // Load from global state as initial state
+    name.value = loggedInUserData?['name'] ?? 'Patient';
+    email.value = loggedInUserData?['email'] ?? '';
 
     // Set initial values in text fields
     nameController.text = name.value;
@@ -42,12 +46,14 @@ class EditProfileController extends GetxController {
 
   Future<void> saveChanges() async {
     if (!isFormValid) {
-      Get.snackbar(
-        'Invalid Input',
-        'Please enter a valid name and email address',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+      debugPrint('Profile update validation failed');
+      Get.defaultDialog(
+        title: 'Invalid Input',
+        middleText: 'Please enter a valid name and email address.',
+        textConfirm: 'OK',
+        confirmTextColor: Colors.white,
+        onConfirm: () => Get.back(),
+        buttonColor: Colors.redAccent,
       );
       return;
     }
@@ -55,28 +61,100 @@ class EditProfileController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Simulate network delay (remove in real app or replace with API call)
-      await Future.delayed(const Duration(milliseconds: 800));
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        debugPrint('Update profile error: No user logged in');
+        throw Exception('No user logged in');
+      }
 
-      // Save to storage
-      await _storage.write('userName', name.value.trim());
-      await _storage.write('userEmail', email.value.trim());
+      final updatedName = name.value.trim();
+      final updatedEmail = email.value.trim();
+      final String currentAuthEmail = user.email ?? '';
 
-      // Optional: update AuthController if it holds live user data
-      // authController.user['name'] = name.value.trim();
-      // authController.user['email'] = email.value.trim();
+      // 1. Update Firebase Auth Email if changed
+      if (updatedEmail.toLowerCase() != currentAuthEmail.toLowerCase()) {
+        debugPrint('Updating Firebase Auth email from $currentAuthEmail to $updatedEmail');
+        
+        // Re-authenticate silently as requested using stored password
+        final password = loggedInUserData?['password'];
+        if (password != null && password.toString().isNotEmpty) {
+          debugPrint('Re-authenticating silently for email change...');
+          AuthCredential credential = EmailAuthProvider.credential(
+            email: currentAuthEmail,
+            password: password.toString(),
+          );
+          await user.reauthenticateWithCredential(credential);
+        } else {
+          debugPrint('Silent re-auth failed: No password in global state');
+          // If we don't have the password, we might still try updateEmail, 
+          // but it will likely trigger the requires-recent-login catch block.
+        }
+        
+        await user.updateEmail(updatedEmail);
+      }
+
+      // 2. Save to Firestore
+      debugPrint('Updating Firestore document for UID: ${user.uid}');
+      await FirebaseFirestore.instance.collection('Patients').doc(user.uid).update({
+        'name': updatedName,
+        'email': updatedEmail,
+      });
+
+      // 2. Update Global State
+      Map<String, dynamic> newData = Map.from(loggedInUserData ?? {});
+      newData['name'] = updatedName;
+      newData['email'] = updatedEmail;
+      updateLoggedInUserData(newData);
+
+      // 3. Update other controllers
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().username.value = updatedName;
+      }
+      
+      if (Get.isRegistered<AccountController>()) {
+        final acc = Get.find<AccountController>();
+        acc.name.value = updatedName;
+        acc.email.value = updatedEmail;
+      }
 
       Get.back(); // return to Account screen
 
       Get.snackbar(
         'Profile Updated',
-        'Your changes have been saved successfully',
+        'Your profile and login email have been updated.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green[700],
         colorText: Colors.white,
       );
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException during profile update: ${e.code} - ${e.message}');
+      if (e.code == 'requires-recent-login') {
+        Get.defaultDialog(
+          title: 'Security Check',
+          middleText: 'For security reasons, please log out and log back in to change your email address.',
+          textConfirm: 'OK',
+          confirmTextColor: Colors.white,
+          onConfirm: () => Get.back(),
+          buttonColor: Colors.orange[800],
+        );
+      } else {
+        Get.defaultDialog(
+          title: 'Auth Error',
+          middleText: e.message ?? 'Failed to update login email.',
+          textConfirm: 'OK',
+          confirmTextColor: Colors.white,
+          onConfirm: () => Get.back(),
+        );
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to save profile. Please try again.');
+      debugPrint('Unexpected error during profile update: $e');
+      Get.defaultDialog(
+        title: 'Error',
+        middleText: 'Failed to save profile: $e',
+        textConfirm: 'OK',
+        confirmTextColor: Colors.white,
+        onConfirm: () => Get.back(),
+      );
     } finally {
       isLoading.value = false;
     }

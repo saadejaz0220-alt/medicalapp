@@ -15,6 +15,7 @@ import '../../widgets/common/journey_progress_card.dart';
 import '../../widgets/common/mediacard.dart';
 import '../../widgets/common/motivational_quote_card.dart';
 import '../../widgets/common/progress_card.dart';
+import '../../widgets/common/recovery_journey_card.dart';
 import '../../widgets/common/session_card.dart';
 import 'home_controller.dart';
 
@@ -59,7 +60,6 @@ class HomeScreen extends GetView<HomeController> {
                     style: TextStyle(
                       fontSize: 22,
                       color: Get.theme.colorScheme.primary,
-                     // color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -190,8 +190,10 @@ class HomeScreen extends GetView<HomeController> {
           }),
 
 
+          // const SizedBox(height: 16),
+          // const ImageGalleryCard(),
           const SizedBox(height: 16),
-          const ImageGalleryCard(),
+          const RecoveryJourneyCard(),
           const SizedBox(height: 16),
           const JourneyProgressCard(),
           const SizedBox(height: 16),

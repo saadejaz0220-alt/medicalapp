@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../screens/account/account_screen.dart';
+import '../../screens/account/change_password_screen.dart';
 import '../../screens/account/edit_profile_screen.dart';
 import '../../screens/auth/login_screen.dart';
 // import '../../screens/auth/signup-screen.dart';
@@ -39,6 +40,7 @@ class AppPages {
       page: () => EditProfileScreen(),
     ),
     GetPage(name: AppRoutes.YoutubePlayer, page: () => YoutubePlayerScreen()),
+    GetPage(name: AppRoutes.CHANGE_PASSWORD, page: () => const ChangePasswordScreen()),
 
 
     // ... other pages
