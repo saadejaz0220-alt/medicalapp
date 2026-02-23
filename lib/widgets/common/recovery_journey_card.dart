@@ -31,7 +31,7 @@ class RecoveryJourneyCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Your Recovery Journey\nEarn a piece every days",
+                "Your Recovery Journey\nEarn a reward every day",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -54,8 +54,8 @@ class RecoveryJourneyCard extends StatelessWidget {
                     final streakNumber = startStreak + index;
                     bool isEarned = streakNumber <= currentStreak;
                     
-                    // Looping assets: 1, 8, 15... use piece_1.png
-                    final assetIndex = ((streakNumber - 1) % 7) + 1;
+                    // Looping assets: 1, 6, 11... use scene_1.png
+                    final assetIndex = ((streakNumber - 1) % 5) + 1;
                     
                     return Stack(
                       children: [
@@ -65,7 +65,7 @@ class RecoveryJourneyCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             image: isEarned 
                               ? DecorationImage(
-                                  image: AssetImage('assets/images/piece_$assetIndex.png'),
+                                  image: AssetImage('assets/images/scene_$assetIndex.png'),
                                   fit: BoxFit.cover,
                                 )
                               : null,

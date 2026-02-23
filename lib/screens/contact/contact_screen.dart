@@ -82,20 +82,6 @@ class ContactScreen extends StatelessWidget {
               textColor: Colors.white,
               onPressed: controller.launchSMS,
             ),
-            const SizedBox(height: 16),
-
-            _buildActionButton(
-              context: context,
-              icon: Icons.email_rounded,
-              label: 'Email: hello@infinitywellnessmd.com',
-              color: Theme.of(context).colorScheme.primary,
-             // borderColor: Colors.white,
-              borderColor: Theme.of(context).colorScheme.primary,
-              //textColor: Theme.of(context).colorScheme.primary,
-              textColor: Colors.white,
-
-              onPressed: controller.launchEmail,
-            ),
             const SizedBox(height: 48),
 
             // Response Time Card
@@ -115,7 +101,7 @@ class ContactScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Within 2 hours (9am–6pm PST)',
+                      'Within 2 hours (9am–4pm PST)',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.success,

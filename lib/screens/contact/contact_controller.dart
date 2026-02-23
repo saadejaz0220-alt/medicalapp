@@ -6,10 +6,7 @@ import '../../main.dart';
 
 class ContactController extends GetxController {
   final String phoneNumber = '+14242741550';
-  final String email = 'hello@infinitywellnessmd.com';
-
   final RxString patientName = 'Patient'.obs;
-  final RxString patientEmail = ''.obs;
 
   @override
   void onInit() {
@@ -20,7 +17,6 @@ class ContactController extends GetxController {
 
   void _loadFromGlobalState() {
     patientName.value = loggedInUserData?['name'] ?? 'Patient';
-    patientEmail.value = loggedInUserData?['email'] ?? '';
   }
 
   Future<void> _fetchPatientDetails() async {
@@ -54,23 +50,4 @@ class ContactController extends GetxController {
     }
   }
 
-  Future<void> launchEmail() async {
-    final String subject = 'Support Request from Patient App';
-    final String body = 'Hello,\n\nI would like to ask about...\n\nBest regards,\n${patientName.value}';
-    
-    // Construct the mailto URI manually to ensure correct percent-encoding (%20 for spaces)
-    // using Uri.encodeComponent to handle special characters correctly.
-    final String url = 'mailto:$email?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}';
-    final Uri emailUri = Uri.parse(url);
-
-    if (await canLaunchUrl(emailUri)) {
-      await launchUrl(emailUri);
-    } else {
-      Get.snackbar(
-        'Notice', 
-        'Could not open email app. Please email $email',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  }
 }
