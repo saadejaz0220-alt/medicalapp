@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../app/routes/app_routes.dart';
 import '../../main.dart';
 import '../auth/auth_controller.dart';
 import '../home/home_controller.dart';
@@ -15,10 +16,12 @@ class EditProfileController extends GetxController {
   // Reactive fields
   final name = ''.obs;
   final email = ''.obs;
+  final phone = ''.obs;
 
   // Text controllers for form fields
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final phoneController = TextEditingController();
 
   final isLoading = false.obs;
 
@@ -32,10 +35,12 @@ class EditProfileController extends GetxController {
     // Load from global state as initial state
     name.value = loggedInUserData?['name'] ?? 'Patient';
     email.value = loggedInUserData?['email'] ?? '';
+    phone.value = loggedInUserData?['phone'] ?? '';
 
     // Set initial values in text fields
     nameController.text = name.value;
     emailController.text = email.value;
+    phoneController.text = phone.value;
   }
 
   bool get isFormValid {
@@ -69,6 +74,7 @@ class EditProfileController extends GetxController {
 
       final updatedName = name.value.trim();
       final updatedEmail = email.value.trim();
+      final updatedPhone = phone.value.trim();
       final String currentAuthEmail = user.email ?? '';
 
       // 1. Update Firebase Auth Email if changed
@@ -98,12 +104,14 @@ class EditProfileController extends GetxController {
       await FirebaseFirestore.instance.collection('Patients').doc(user.uid).update({
         'name': updatedName,
         'email': updatedEmail,
+        'phone': updatedPhone,
       });
 
-      // 2. Update Global State
+      // 3. Update Global State
       Map<String, dynamic> newData = Map.from(loggedInUserData ?? {});
       newData['name'] = updatedName;
       newData['email'] = updatedEmail;
+      newData['phone'] = updatedPhone;
       updateLoggedInUserData(newData);
 
       // 3. Update other controllers
@@ -160,10 +168,15 @@ class EditProfileController extends GetxController {
     }
   }
 
+  void goToChangePassword() {
+    Get.toNamed(AppRoutes.CHANGE_PASSWORD);
+  }
+
   @override
   void onClose() {
     nameController.dispose();
     emailController.dispose();
+    phoneController.dispose();
     super.onClose();
   }
 }
