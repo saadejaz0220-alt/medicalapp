@@ -189,7 +189,7 @@ class CalendarScreen extends GetView<CalendarController> {
                   '$day',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                    fontSize: 12,
                     color: isToday
                         ? Theme.of(context).colorScheme.primary
                         : null,

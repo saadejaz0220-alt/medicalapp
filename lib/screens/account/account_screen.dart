@@ -69,7 +69,7 @@ class AccountScreen extends GetView<AccountController> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.edit_rounded),
+                      icon: const Icon(Icons.edit_rounded, color: AppColors.accent),
                       onPressed: controller.goToEditProfile,
                       tooltip: 'Edit Profile',
                     ),
@@ -187,44 +187,7 @@ class AccountScreen extends GetView<AccountController> {
               ),
             ),
 
-            const SizedBox(height: 48),
-
-            // Security Section
-            Text(
-              'Security',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Manage your account security',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: ListTile(
-                onTap: controller.goToChangePassword,
-                contentPadding: const EdgeInsets.all(20),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue.withOpacity(0.1),
-                  child: const Icon(Icons.lock_outline_rounded, color: Colors.blue),
-                ),
-                title: const Text(
-                  'Change Password',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Update your 6-digit numeric password'),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-              ),
-            ),
-
-            const SizedBox(height: 48),
+            const SizedBox(height: 40),
             // const SizedBox(height: 40),
 
             // Logout Button

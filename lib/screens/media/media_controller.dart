@@ -13,6 +13,7 @@ import '../../services/activity_logger.dart';
 class MediaController extends GetxController {
   final mediaItems = <MediaItem>[].obs;
   final searchQuery = ''.obs;
+  final searchController = TextEditingController();
   final isLoading = false.obs;
 
   @override
@@ -37,19 +38,32 @@ class MediaController extends GetxController {
       List<MediaItem> allMedias = [];
       Set<String> processedSessionIds = {};
 
+      // Calculate total session count for reverse numbering (newest = highest)
+      int totalSessions = historyQuery.docs.length;
+      int currentSessionCount = 0;
+
       for (var doc in historyQuery.docs) {
         final data = doc.data();
         final sessionId = data['sessionId'];
         
         if (sessionId != null && sessionId is String && sessionId.isNotEmpty) {
-          if (processedSessionIds.contains(sessionId)) continue;
+          if (processedSessionIds.contains(sessionId)) {
+            // Even if we skip processing the media again, we should skip the count increment 
+            // but the numbering depends on the unique session index in the history
+            continue;
+          }
           processedSessionIds.add(sessionId);
+          
+          // Reverse numbering logic: newest session (first in list) gets the highest number
+          final int sessionNumber = totalSessions - currentSessionCount;
+          currentSessionCount++;
 
           // 2. Fetch the session doc
           final visitDoc = await FirebaseFirestore.instance.collection('Visits').doc(sessionId).get();
           if (visitDoc.exists) {
             final visitData = visitDoc.data()!;
-            final String sessionTitle = visitData['visitName'] ?? 'Untitled Session';
+            final String rawTitle = visitData['visitName'] ?? 'Untitled Session';
+            final String sessionTitle = "Session $sessionNumber: $rawTitle";
             final String visitId = visitData['visitId'] ?? sessionId;
             final List<dynamic>? postSessionWorkout = visitData['postSessionWorkout'];
 
@@ -65,7 +79,7 @@ class MediaController extends GetxController {
                     mediaData['fromSessionId'] = visitId;
                     
                     final item = MediaItem.fromFirestore(mediaData, mediaDoc.id);
-                    // Deduplicate media items: show each media only once in the entire library
+                    // Deduplicate media items
                     if (!allMedias.any((m) => m.id == item.id)) {
                       allMedias.add(item);
                     }
@@ -74,6 +88,9 @@ class MediaController extends GetxController {
               }
             }
           }
+        } else {
+          // If a history record doesn't have a sessionId, we still count it for consistency
+          currentSessionCount++;
         }
       }
 
@@ -128,5 +145,12 @@ class MediaController extends GetxController {
 
   void resetFilters() {
     searchQuery.value = '';
+    searchController.clear();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 }
