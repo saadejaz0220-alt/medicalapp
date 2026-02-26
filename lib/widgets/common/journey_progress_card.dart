@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../app/routes/app_routes.dart';
 import '../../screens/home/home_controller.dart';
 
 class JourneyProgressCard extends GetView<HomeController> {
@@ -59,7 +60,7 @@ class CompletedSessionsList extends GetView<HomeController> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => Get.toNamed(AppRoutes.COMPLETED_SESSIONS),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.blue,
@@ -75,10 +76,11 @@ class CompletedSessionsList extends GetView<HomeController> {
               ),
             ],
           ),
-          ...controller.completedSessions.asMap().entries.map((entry) {
+          ...controller.completedSessions.take(3).toList().asMap().entries.map((entry) {
             final index = entry.key;
             final session = entry.value;
             // The earliest session shown will be 'Session 1' at the bottom
+            // Since we are showing the latest 3, we calculate the index relative to the full list
             final sessionDisplayIndex = controller.completedSessions.length - index;
             
             return Container(

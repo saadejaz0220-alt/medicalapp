@@ -38,61 +38,91 @@ class LoginScreen extends GetView<AuthController> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter your phone/email and the 6-digit code we sent',
+                  'Login with your email and 6-digit security code',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
-                Text("Phone or Email"),
-                const SizedBox(height:5),
-                // Contact field
-                TextField(
-                  onChanged: (val) => controller.loginContact.value = val,
-                  decoration: InputDecoration(
-                    labelText: 'Phone or Email',
-                    hintText: '03xx-xxxxxxx or you@clinic.com',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.person_outline),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 15),
-                   Text("6-Digit Code"),
-                const SizedBox(height:5),
-                // Code field
-                TextField(
-                  onChanged: (val) => controller.loginCode.value = val,
-                  decoration: InputDecoration(
-                    labelText: '6-Digit Code',
-                    hintText: '------',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: controller.requestCode,
-                      tooltip: 'Resend code',
+                const SizedBox(height: 32),
+                
+                // Email Field
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Email Address", style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      onChanged: (val) => controller.loginContact.value = val,
+                      decoration: InputDecoration(
+                        labelText: 'Email Address',
+                        hintText: 'you@clinic.com',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.email_outlined),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
                     ),
-                  ),
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(letterSpacing: 8, fontSize: 24, fontWeight: FontWeight.bold),
+                  ],
                 ),
+
+                const SizedBox(height: 20),
+
+                // 6-Digit Code Field
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("6-Digit Code", style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      onChanged: (val) {
+                        controller.loginCode.value = val;
+                        if (val.length == 6) {
+                          controller.doLogin();
+                        }
+                      },
+                      decoration: InputDecoration(
+                        counterText: "",
+                        hintText: '......',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.lock_outline),
+                      ),
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(letterSpacing: 10, fontSize: 26, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                
                 const SizedBox(height: 32),
 
                 // Login Button
                 Obx(
-                      () => SizedBox(
+                  () => SizedBox(
                     width: double.infinity,
-                    height: 54,
+                    height: 56,
                     child: ElevatedButton(
                       onPressed: controller.isLoading.value ? null : controller.doLogin,
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).brightness == Brightness.light 
+                            ? Colors.black 
+                            : Colors.white,
+                        foregroundColor: Theme.of(context).brightness == Brightness.light 
+                            ? Colors.white 
+                            : Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
                       ),
                       child: controller.isLoading.value
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2.5))
-                          : const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:Colors.white )),
+                        ? SizedBox(
+                            height: 24, 
+                            width: 24, 
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5, 
+                              color: Theme.of(context).brightness == Brightness.light 
+                                  ? Colors.white 
+                                  : Colors.black,
+                            ),
+                          )
+                        : const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ),

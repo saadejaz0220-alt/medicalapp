@@ -11,11 +11,15 @@ class CalendarController extends GetxController {
 
   final RxString streakText = 'Current Streak: 0 days'.obs;
   final RxSet<String> activityDates = <String>{}.obs;
+  final RxMap<String, List<Map<String, dynamic>>> detailedActivity = <String, List<Map<String, dynamic>>>{}.obs;
+  final RxString selectedDate = ''.obs;
   final RxBool isLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    selectedDate.value = today;
     fetchActivityData();
   }
 
@@ -24,12 +28,29 @@ class CalendarController extends GetxController {
     try {
       final dates = await ActivityLogger.fetchActivityDates();
       activityDates.assignAll(dates);
+      
+      final detailed = await ActivityLogger.fetchDetailedActivity();
+      detailedActivity.assignAll(detailed);
+      
       updateStreak();
     } catch (e) {
       print('CalendarController: Error fetching activity data: $e');
     } finally {
       isLoading.value = false;
     }
+  }
+
+  bool hasClinicalSession(String dateStr) {
+    final activities = detailedActivity[dateStr] ?? [];
+    return activities.any((a) => a['type'] == 'clinical');
+  }
+
+  void onDateSelected(String dateStr) {
+    selectedDate.value = dateStr;
+  }
+
+  List<Map<String, dynamic>> getActivitiesForSelectedDate() {
+    return detailedActivity[selectedDate.value] ?? [];
   }
 
   void changeMonth(int delta) {

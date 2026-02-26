@@ -136,15 +136,17 @@ class HomeController extends GetxController {
       // 3. Determine if we show a single session (standalone) or a journey group
       if (effectiveJourneyId == null || effectiveJourneyId.isEmpty) {
         // Latest record is a single non-journey visit
-        // SHOW ONLY THE LATEST RECORD
-        print('DEBUG fetchCompletedSessions: Standalone session detected, showing only latest');
-        final data = latestHistoryData;
-        sessions.add({
-          'id': latestHistoryDoc.id,
-          'title': data['sessionName'] ?? 'Untitled Session',
-          'date': _formatTimestamp(data['date']),
-          'sessionId': latestSessionId,
-        });
+        // SHOW ALL RECORDS (the user wants to see everything they completed)
+        print('DEBUG fetchCompletedSessions: Standalone session sequence detected, showing all');
+        for (var doc in historyQuery.docs) {
+          final data = doc.data();
+          sessions.add({
+            'id': doc.id,
+            'title': data['sessionName'] ?? 'Untitled Session',
+            'date': _formatTimestamp(data['date']),
+            'sessionId': data['sessionId']?.toString() ?? '',
+          });
+        }
       } else {
         print('DEBUG fetchCompletedSessions: Journey session detected, effectiveJourneyId=$effectiveJourneyId');
         // Condition B: Latest record or patient profile belongs to a journey

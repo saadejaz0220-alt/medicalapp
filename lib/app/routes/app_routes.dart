@@ -19,5 +19,6 @@ abstract class AppRoutes {
   static const ProgressController = '/progress';
   static const SessionDetailController = '/session-detail';
   static const SessionPlayerController = '/session-player';
+  static const COMPLETED_SESSIONS = '/completed-sessions';
 }
 

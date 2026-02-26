@@ -43,6 +43,8 @@ class AccountController extends GetxController {
         'Saved',
         'Preferences and reminder updated successfully',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
       debugPrint('Error scheduling reminder in AccountController: $e');

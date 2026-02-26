@@ -40,22 +40,98 @@ class ActivityLogger {
     }
   }
 
-  /// Fetches all activity dates for the current user.
+  /// Fetches all activity dates for the current user (Media + History).
   static Future<Set<String>> fetchActivityDates() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return {};
 
     try {
-      final query = await _firestore
+      // 1. Fetch from activity_log (Media plays)
+      final mediaQuery = await _firestore
           .collection('activity_log')
           .where('userId', isEqualTo: user.uid)
           .get();
+      final mediaDates = mediaQuery.docs.map((doc) => doc.data()['date'] as String);
 
-      return query.docs.map((doc) => doc.data()['date'] as String).toSet();
+      // 2. Fetch from history (Clinical sessions)
+      final historyQuery = await _firestore
+          .collection('history')
+          .where('patientId', isEqualTo: user.uid)
+          .get();
+      final historyDates = historyQuery.docs.map((doc) {
+        final data = doc.data();
+        final timestamp = data['date'];
+        if (timestamp is Timestamp) {
+          return DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+        } else if (timestamp is String) {
+          return timestamp.substring(0, 10); // Assume yyyy-MM-dd...
+        }
+        return '';
+      }).where((d) => d.isNotEmpty);
+
+      return {...mediaDates, ...historyDates};
     } catch (e) {
       print('ActivityLogger: Error fetching activity dates: $e');
       return {};
     }
+  }
+
+  /// Fetches detailed activity records per date.
+  static Future<Map<String, List<Map<String, dynamic>>>> fetchDetailedActivity() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return {};
+
+    Map<String, List<Map<String, dynamic>>> results = {};
+
+    try {
+      // 1. Fetch Media Activity
+      final mediaQuery = await _firestore
+          .collection('activity_log')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      for (var doc in mediaQuery.docs) {
+        final data = doc.data();
+        final date = data['date'] as String;
+        final mediaId = data['mediaId'] as String;
+        
+        // We might want to fetch the media title here, but for now we'll label it "Media Session"
+        results.putIfAbsent(date, () => []).add({
+          'type': 'media',
+          'title': 'Watched Media Workout',
+          'id': mediaId,
+        });
+      }
+
+      // 2. Fetch Clinical History
+      final historyQuery = await _firestore
+          .collection('history')
+          .where('patientId', isEqualTo: user.uid)
+          .get();
+
+      for (var doc in historyQuery.docs) {
+        final data = doc.data();
+        final timestamp = data['date'];
+        String date = '';
+        if (timestamp is Timestamp) {
+          date = DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+        } else if (timestamp is String) {
+          date = timestamp.substring(0, 10);
+        }
+
+        if (date.isNotEmpty) {
+          results.putIfAbsent(date, () => []).add({
+            'type': 'clinical',
+            'title': data['sessionName'] ?? 'Clinical Session',
+            'id': data['sessionId']?.toString() ?? '',
+          });
+        }
+      }
+    } catch (e) {
+      print('ActivityLogger: Error fetching detailed activity: $e');
+    }
+
+    return results;
   }
 
   /// Calculates the current streak (consecutive days ending today or yesterday).

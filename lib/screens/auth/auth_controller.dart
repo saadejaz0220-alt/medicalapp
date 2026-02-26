@@ -16,9 +16,9 @@ class AuthController extends GetxController {
   final storage = GetStorage();
   final RxBool isLoading = false.obs;
 
-  // Login fields (Email and Password)
-  final RxString loginContact = ''.obs; // used for email
-  final RxString loginCode = ''.obs;    // used for password
+  // Login fields (Email and 6-Digit Code)
+  final RxString loginContact = ''.obs; 
+  final RxString loginCode = ''.obs;    
 
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
@@ -39,52 +39,38 @@ class AuthController extends GetxController {
       if (doc.exists) {
         final data = doc.data()!;
         updateLoggedInUserData(data);
-        // sync other data as needed if they are not in the main data map
       }
     } catch (e) {
       print('Error syncing user data: $e');
     }
   }
 
-  Future<void> requestCode() async {
-    Get.snackbar('Coming Soon', 'Password reset will be available soon.');
-  }
-
   Future<void> doLogin() async {
-    isLoading.value = true;
-
+    if (isLoading.value) return;
+    
     final email = loginContact.value.trim();
-    final password = loginCode.value.trim();
+    final code = loginCode.value.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      Get.snackbar('Error', 'Please enter email and password');
-      isLoading.value = false;
-      return;
+    if (email.isEmpty || code.isEmpty || code.length < 6) {
+      return; // Silently wait for full input or handle via UI feedback if needed
     }
 
+    isLoading.value = true;
     try {
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
-        password: password,
+        password: code,
       );
 
       if (userCredential.user != null) {
         await _syncUserData(userCredential.user!.uid);
-        
-        // Add password to global data for re-authentication during sensitive operations
-        if (loggedInUserData != null) {
-          final updatedData = Map<String, dynamic>.from(loggedInUserData!);
-          updatedData['password'] = password;
-          updateLoggedInUserData(updatedData);
-        }
-
-        Get.snackbar('Success', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
+        Get.snackbar('Login Successful', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
         Get.offAllNamed('/');
       }
     } on FirebaseAuthException catch (e) {
-      Get.snackbar('Error', e.message ?? 'Login failed');
+      Get.snackbar('Login Error', e.message ?? 'Authentication failed', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Error', 'An unexpected error occurred');
+      Get.snackbar('Error', 'An unexpected error occurred', snackPosition: SnackPosition.BOTTOM);
     }
 
     isLoading.value = false;

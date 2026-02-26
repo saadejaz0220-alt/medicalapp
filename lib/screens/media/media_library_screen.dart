@@ -81,7 +81,6 @@ class MediaLibraryScreen extends GetView<MediaController> {
                   media: items[i],
                   tagLabel: 'Post-Session',
                   onPlay: () => controller.playMedia(items[i]),
-                  onTap: () => controller.playMedia(items[i]),
                 ),
               );
             }),
