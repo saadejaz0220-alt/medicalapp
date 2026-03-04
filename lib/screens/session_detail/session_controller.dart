@@ -12,7 +12,6 @@ class SessionDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments;
     final id = Get.parameters['id'] != null ? int.tryParse(Get.parameters['id']!) : null;
 
     if (id == null) {

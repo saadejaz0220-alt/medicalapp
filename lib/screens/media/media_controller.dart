@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../data/models/media_item.dart';
-import '../../../app/routes/app_routes.dart';
-import '../../data/dummy_data/dummy_data.dart';
 import '../../widgets/common/embedded_media_player.dart';
 import '../../services/activity_logger.dart';
 

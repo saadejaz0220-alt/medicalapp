@@ -3,22 +3,21 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/twilio_service.dart';
+import 'dart:math';
 
 import '../../app/routes/app_routes.dart';
 import '../../main.dart';
-import '../../widgets/bottom_nav/Navigation_controller.dart';
-import '../account/account_controller.dart';
-import '../calendar/calendar_controller.dart';
-import '../home/home_controller.dart';
-import '../media/media_controller.dart';
 
 class AuthController extends GetxController {
   final storage = GetStorage();
   final RxBool isLoading = false.obs;
 
-  // Login fields (Email and 6-Digit Code)
+  // Login fields (Email/Phone and 6-Digit Code)
   final RxString loginContact = ''.obs; 
   final RxString loginCode = ''.obs;    
+  final RxBool isOtpSent = false.obs;
+  final TwilioService _twilioService = TwilioService();
 
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
@@ -45,32 +44,95 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> sendOtp() async {
+    final contact = loginContact.value.trim();
+    if (contact.isEmpty) {
+      Get.snackbar('Error', 'Please enter a phone number', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    isLoading.value = true;
+    final otp = (100000 + Random().nextInt(900000)).toString();
+    // In a real app, you should hash this or store it securely in Firebase/Backend
+    // For now, we'll use it to verify locally or against a dummy password in Firebase
+    
+    final success = await _twilioService.sendSms(
+      contact,
+      'Your verification code for MedicalApp is $otp',
+    );
+
+    if (success) {
+      isOtpSent.value = true;
+      // Store OTP for verification (Note: In production, verify on server)
+      storage.write('temp_otp', otp);
+      storage.write('temp_contact', contact);
+      Get.snackbar('Success', 'Verification code sent to $contact', backgroundColor: Colors.green[800], colorText: Colors.white);
+    } else {
+      Get.snackbar('Error', 'Failed to send SMS', snackPosition: SnackPosition.BOTTOM);
+    }
+    isLoading.value = false;
+  }
+
   Future<void> doLogin() async {
     if (isLoading.value) return;
     
-    final email = loginContact.value.trim();
+    final contact = loginContact.value.trim();
     final code = loginCode.value.trim();
 
-    if (email.isEmpty || code.isEmpty || code.length < 6) {
-      return; // Silently wait for full input or handle via UI feedback if needed
+    if (contact.isEmpty || code.isEmpty || code.length < 6) {
+      Get.snackbar('Error', 'Please enter valid credentials', snackPosition: SnackPosition.BOTTOM);
+      return;
     }
 
     isLoading.value = true;
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: code,
-      );
+      final isPhone = !contact.contains('@');
+      
+      if (isPhone) {
+        final savedOtp = storage.read('temp_otp');
+        final savedContact = storage.read('temp_contact');
+        
+        if (contact == savedContact && code == savedOtp) {
+          // Attempt to find user by phone in Firestore
+          final query = await FirebaseFirestore.instance
+              .collection('Patients')
+              .where('phone', isEqualTo: contact)
+              .limit(1)
+              .get();
 
-      if (userCredential.user != null) {
-        await _syncUserData(userCredential.user!.uid);
-        Get.snackbar('Login Successful', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
-        Get.offAllNamed('/');
+          if (query.docs.isNotEmpty) {
+            final userData = query.docs.first.data();
+            final email = userData['email'] as String?;
+            
+            if (email != null) {
+              // Sign in with Firebase using the fixed password/code pattern if applicable
+              // Or custom token if using true OTP backend. 
+              // For now, we simulate success if the code matches.
+              await _syncUserData(query.docs.first.id);
+              Get.offAllNamed('/');
+            }
+          } else {
+            Get.snackbar('Error', 'User not found with this phone number', snackPosition: SnackPosition.BOTTOM);
+          }
+        } else {
+          Get.snackbar('Error', 'Invalid verification code', snackPosition: SnackPosition.BOTTOM);
+        }
+      } else {
+        final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: contact,
+          password: code,
+        );
+
+        if (userCredential.user != null) {
+          await _syncUserData(userCredential.user!.uid);
+          Get.snackbar('Login Successful', 'Welcome back!', backgroundColor: Colors.green[800], colorText: Colors.white);
+          Get.offAllNamed('/');
+        }
       }
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Login Error', e.message ?? 'Authentication failed', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Error', 'An unexpected error occurred', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Error', 'An unexpected error occurred: $e', snackPosition: SnackPosition.BOTTOM);
     }
 
     isLoading.value = false;

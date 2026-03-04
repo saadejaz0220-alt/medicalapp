@@ -8,7 +8,6 @@ import '../../widgets/bottom_nav/Navigation_controller.dart';
 import '../../widgets/bottom_nav/custom_bottom_nav_bar.dart';
 import '../account/account_screen.dart';
 import '../auth/auth_controller.dart';
-import '../auth/login_screen.dart';
 import '../calendar/calendar_screen.dart';
 import '../contact/contact_screen.dart';
 import '../home/home_screen.dart';
@@ -19,7 +18,6 @@ class RootScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authCtrl = Get.find<AuthController>();
 
     return Scaffold(
       body: Obx(() => _screens[Get.find<NavController>().currentIndex.value]),

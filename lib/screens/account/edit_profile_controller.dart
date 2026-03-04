@@ -10,7 +10,6 @@ import '../home/home_controller.dart';
 import 'account_controller.dart';
 
 class EditProfileController extends GetxController {
-  final _storage = GetStorage();
   final authController = Get.find<AuthController>();
 
   // Reactive fields
