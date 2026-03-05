@@ -3,20 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import '../../app/routes/app_routes.dart';
 
 import '../../data/models/media_item.dart';
-import '../../widgets/common/embedded_media_player.dart';
-import '../../widgets/common/image_gallary_grid.dart';
 import '../../widgets/common/journey_progress_card.dart';
 import '../../widgets/common/mediacard.dart';
 import '../../widgets/common/motivational_quote_card.dart';
 import '../../widgets/common/progress_card.dart';
 import '../../widgets/common/recovery_journey_card.dart';
-import '../../widgets/common/session_card.dart';
 import 'home_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -179,7 +175,6 @@ class HomeScreen extends GetView<HomeController> {
                 ...displayList.map((media) => MediaCard(
                       media: media,
                       tagLabel: tab.capitalizeFirst,
-                      onTap: () => controller.playMedia(media),
                       onPlay: () => controller.playMedia(media),
                     )),
                 const SizedBox(height: 8),

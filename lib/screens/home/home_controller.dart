@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import '../../app/routes/app_routes.dart';
-import '../../data/dummy_data/dummy_data.dart';
 import '../../data/models/media_item.dart';
 import '../../widgets/common/embedded_media_player.dart';
 import '../../services/activity_logger.dart';
@@ -100,8 +93,6 @@ class HomeController extends GetxController {
       // 1. Get Journey context from Patient profile as fallback
       final patientDoc = await FirebaseFirestore.instance.collection('Patients').doc(user.uid).get();
       final patientData = patientDoc.data() ?? {};
-      final String? profileJourneyId = patientData['journeyId'];
-      final String? profileJourneyName = patientData['journeyName'];
       final Timestamp? journeyAssignedDate = patientData['journeyAssignedDate'];
 
       // 2. Look at the latest history record
@@ -136,15 +127,17 @@ class HomeController extends GetxController {
       // 3. Determine if we show a single session (standalone) or a journey group
       if (effectiveJourneyId == null || effectiveJourneyId.isEmpty) {
         // Latest record is a single non-journey visit
-        // SHOW ONLY THE LATEST RECORD
-        print('DEBUG fetchCompletedSessions: Standalone session detected, showing only latest');
-        final data = latestHistoryData;
-        sessions.add({
-          'id': latestHistoryDoc.id,
-          'title': data['sessionName'] ?? 'Untitled Session',
-          'date': _formatTimestamp(data['date']),
-          'sessionId': latestSessionId,
-        });
+        // SHOW ALL RECORDS (the user wants to see everything they completed)
+        print('DEBUG fetchCompletedSessions: Standalone session sequence detected, showing all');
+        for (var doc in historyQuery.docs) {
+          final data = doc.data();
+          sessions.add({
+            'id': doc.id,
+            'title': data['sessionName'] ?? 'Untitled Session',
+            'date': _formatTimestamp(data['date']),
+            'sessionId': data['sessionId']?.toString() ?? '',
+          });
+        }
       } else {
         print('DEBUG fetchCompletedSessions: Journey session detected, effectiveJourneyId=$effectiveJourneyId');
         // Condition B: Latest record or patient profile belongs to a journey

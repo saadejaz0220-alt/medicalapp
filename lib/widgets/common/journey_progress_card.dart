@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../app/routes/app_routes.dart';
 import '../../screens/home/home_controller.dart';
 
 class JourneyProgressCard extends GetView<HomeController> {
@@ -51,26 +52,35 @@ class CompletedSessionsList extends GetView<HomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Completed Clinic Sessions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Flexible(
+                child: const Text(
+                  "Completed Clinic Sessions",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => Get.toNamed(AppRoutes.COMPLETED_SESSIONS),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text("See more →"),
+                child: const Text(
+                  "See more",
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
             ],
           ),
-          ...controller.completedSessions.asMap().entries.map((entry) {
+          ...controller.completedSessions.take(3).toList().asMap().entries.map((entry) {
             final index = entry.key;
             final session = entry.value;
             // The earliest session shown will be 'Session 1' at the bottom
+            // Since we are showing the latest 3, we calculate the index relative to the full list
             final sessionDisplayIndex = controller.completedSessions.length - index;
             
             return Container(
@@ -109,17 +119,17 @@ class CompletedSessionsList extends GetView<HomeController> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green, // Success color
-                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Done",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        color: Colors.green.shade800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
                       ),
                     ),
                   ),

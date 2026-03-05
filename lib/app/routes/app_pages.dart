@@ -6,6 +6,7 @@ import '../../screens/auth/login_screen.dart';
 // import '../../screens/auth/signup-screen.dart';
 import '../../screens/calendar/calendar_screen.dart';
 import '../../screens/contact/contact_screen.dart';
+import '../../screens/home/completed_clinic_sessions_screen.dart';
 import '../../screens/home/home_screen.dart';
 import '../../screens/media/media_library_screen.dart';
 import '../../screens/media/youtube_player_screen.dart';
@@ -41,6 +42,7 @@ class AppPages {
     ),
     GetPage(name: AppRoutes.YoutubePlayer, page: () => YoutubePlayerScreen()),
     GetPage(name: AppRoutes.CHANGE_PASSWORD, page: () => const ChangePasswordScreen()),
+    GetPage(name: AppRoutes.COMPLETED_SESSIONS, page: () => const CompletedClinicSessionsScreen()),
 
 
     // ... other pages

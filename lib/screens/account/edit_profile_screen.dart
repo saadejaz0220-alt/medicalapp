@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'edit_profile_controller.dart';
+import '../../../core/theme/app_colors.dart';
 
 class EditProfileScreen extends GetView<EditProfileController> {
   const EditProfileScreen({super.key});
@@ -59,6 +60,22 @@ class EditProfileScreen extends GetView<EditProfileController> {
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
+              const SizedBox(height: 24),
+
+              // Phone field
+              TextField(
+                controller: controller.phoneController,
+                onChanged: (value) => controller.phone.value = value,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  hintText: 'e.g. +1 234 567 8900',
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 48),
 
               // Action buttons
@@ -74,9 +91,15 @@ class EditProfileScreen extends GetView<EditProfileController> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Cancel',
-                      style: TextStyle(color: Colors.white),)
-                      ,
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.white 
+                              : Colors.black,
+                        ),
+                      ),
+
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -88,8 +111,15 @@ class EditProfileScreen extends GetView<EditProfileController> {
                             : controller.saveChanges,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.white
+                              : Colors.black,
+                          foregroundColor: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.black
+                              : Colors.white,
+                          side: Theme.of(context).brightness == Brightness.light
+                              ? BorderSide(color: Colors.grey.shade300)
+                              : null,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -112,6 +142,32 @@ class EditProfileScreen extends GetView<EditProfileController> {
                     ),
                   ),
                 ],
+              ),
+
+              const SizedBox(height: 48),
+
+              // Security Section
+              Text(
+                'Security',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                elevation: 0,
+                color: Colors.grey.withOpacity(0.05),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+                ),
+                child: ListTile(
+                  onTap: controller.goToChangePassword,
+                  leading: const Icon(Icons.lock_outline_rounded, color: Colors.blue),
+                  title: const Text('Change Password'),
+                  subtitle: const Text('Update your numeric security code'),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                ),
               ),
 
               const SizedBox(height: 40),

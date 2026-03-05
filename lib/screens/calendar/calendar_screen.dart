@@ -84,11 +84,94 @@ class CalendarScreen extends GetView<CalendarController> {
 
             const SizedBox(height: 32),
 
+            // Session History Section
+            Obx(() {
+              final activities = controller.getActivitiesForSelectedDate();
+              final selectedDateDisplay = DateFormat('MMMM d, yyyy').format(
+                DateTime.parse(controller.selectedDate.value.isEmpty 
+                    ? DateFormat('yyyy-MM-dd').format(DateTime.now()) 
+                    : controller.selectedDate.value)
+              );
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Sessions for $selectedDateDisplay',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (activities.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.grey, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'No sessions completed on this day.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ...activities.map((activity) => Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: activity['type'] == 'clinical' 
+                              ? Colors.green.withOpacity(0.1) 
+                              : Colors.blue.withOpacity(0.1),
+                          child: Icon(
+                            activity['type'] == 'clinical' 
+                                ? Icons.health_and_safety_rounded 
+                                : Icons.play_circle_fill_rounded,
+                            color: activity['type'] == 'clinical' 
+                                ? Colors.green 
+                                : Colors.blue,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          activity['title'],
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          activity['type'] == 'clinical' ? 'Clinical Session' : 'Media Workout',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                      ),
+                    )),
+                ],
+              );
+            }),
+
+            const SizedBox(height: 32),
+
             // Streak summary card
             Card(
               elevation: 0,
+              borderOnForeground: false,
               color: Theme.of(context).cardColor.withOpacity(0.5),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -157,29 +240,25 @@ class CalendarScreen extends GetView<CalendarController> {
 
         final isCompleted = controller.isCompleted(dateStr);
         final isToday = controller.isToday(day);
+        final isSelected = controller.selectedDate.value == dateStr;
+        final hasClinical = controller.hasClinicalSession(dateStr);
 
         return GestureDetector(
-          onTap: () {
-            if (isCompleted) {
-              Get.snackbar(
-                'Completed Day',
-                'Session completed on ${DateFormat('MMM d, yyyy').format(DateTime.parse(dateStr))}',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            }
-          },
+          onTap: () => controller.onDateSelected(dateStr),
           child: Container(
             decoration: BoxDecoration(
-              color: isCompleted
-                  ? AppColors.success.withOpacity(0.12)
-                  : null,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+                  : (isCompleted ? AppColors.success.withOpacity(0.08) : null),
               borderRadius: BorderRadius.circular(12),
-              border: isToday
-                  ? Border.all(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2.5,
-              )
-                  : null,
+              border: Border.all(
+                color: isSelected 
+                    ? Theme.of(context).colorScheme.primary 
+                    : (hasClinical 
+                        ? AppColors.success 
+                        : (isToday ? Theme.of(context).colorScheme.primary.withOpacity(0.4) : Colors.transparent)),
+                width: (isSelected || hasClinical) ? 2.0 : 1.5,
+              ),
             ),
             alignment: Alignment.center,
             child: Column(
@@ -188,18 +267,18 @@ class CalendarScreen extends GetView<CalendarController> {
                 Text(
                   '$day',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: isToday
+                    fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.w600,
+                    fontSize: 13,
+                    color: isSelected || isToday
                         ? Theme.of(context).colorScheme.primary
                         : null,
                   ),
                 ),
                 if (isCompleted)
                   Container(
-                    margin: const EdgeInsets.only(top: 6),
-                    width: 10,
-                    height: 10,
+                    margin: const EdgeInsets.only(top: 4),
+                    width: 6,
+                    height: 6,
                     decoration: const BoxDecoration(
                       color: AppColors.success,
                       shape: BoxShape.circle,

@@ -130,7 +130,7 @@ class _NavItem extends StatelessWidget {
               Text(
                 _getLabel(),
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 8,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   color: labelColor,
                 ),

@@ -15,19 +15,26 @@ class MediaLibraryScreen extends GetView<MediaController> {
       appBar: AppBar(title: const Text('Media Library')),
       body: Column(
         children: [
-          // Header
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Your unlocked homework & guided sessions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Center(
+              child: Text(
+                'Your unlocked homework & guided sessions',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.grey.shade700,
+                ),
+              ),
             ),
           ),
-
           // Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: TextField(
+              controller: controller.searchController,
               onChanged: (val) => controller.searchQuery.value = val,
               decoration: InputDecoration(
                 hintText: 'Search titles...',
@@ -38,6 +45,9 @@ class MediaLibraryScreen extends GetView<MediaController> {
               ),
             ),
           ),
+
+          // Header (Moved below search and centered)
+          
 
           // Media List
           Expanded(
@@ -71,7 +81,6 @@ class MediaLibraryScreen extends GetView<MediaController> {
                   media: items[i],
                   tagLabel: 'Post-Session',
                   onPlay: () => controller.playMedia(items[i]),
-                  onTap: () => controller.playMedia(items[i]),
                 ),
               );
             }),

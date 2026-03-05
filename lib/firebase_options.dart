@@ -6,10 +6,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you are entering a missing configuration area.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -37,6 +34,16 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDu5uZcb9are_ySppDkGbJU28LprsHcqUw',
+    appId: 'YOUR_WEB_APP_ID', // Replace with: 1:636178650187:web:XXXX
+    messagingSenderId: '636178650187',
+    projectId: 'clinic-audio-app',
+    authDomain: 'clinic-audio-app.firebaseapp.com',
+    storageBucket: 'clinic-audio-app.appspot.com',
+    measurementId: 'G-XXXXXXXXXX', // Optional
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDu5uZcb9are_ySppDkGbJU28LprsHcqUw',
